@@ -1,3 +1,4 @@
+#include <psp2/kernel/processmgr.h>
 #include <sstream>
 #include <vector>
 
@@ -15,4 +16,6 @@ int main(int argc, char *argv[]) {
 	}
 	output << std::endl;
 	printf("%s\n", output.str().c_str());
+    sceKernelExitProcess(0);
+    return 0;
 }
