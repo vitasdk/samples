@@ -9,6 +9,10 @@ Always use the `*_debug.bat` (e.g. `run_homebrew_unity_debug.bat`) launcher to g
 * `hello_world`: A minimal Makefile-based C project
 * `hello_cpp_world`: A minimal Makefile-based C++ project
 
+## Notes
+- icon0.png, startup.png and bg.png must be using indexed palettes.
+- For some reasons, some PNG files created by GIMP makes the .vpk installation crash.
+
 ## License
 
 All code and build scripts in this repo is licensed under the terms of [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
