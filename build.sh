@@ -1,9 +1,22 @@
 #!/bin/bash
 set -e
 
-for directory in */; do
-	echo "Build '$directory'"
-	cd $directory
+runmake () {
+	echo "Build '$1'"
+	cd $1
 	make
 	cd ..
-done
+}
+
+makedirs ()
+{
+	for directory in "$@"; do
+		if [ -a $directory/Makefile ]; then
+			runmake $directory
+		else
+			makedirs $directory/*
+		fi
+	done
+}
+
+makedirs */
