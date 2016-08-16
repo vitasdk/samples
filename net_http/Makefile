@@ -42,13 +42,13 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) -Wl,-q -I../common -o $@ $^ $(LIBS)
+	$(CXX) -Wl,-q -o $@ $^ $(LIBS)
 
 $(OBJ_DIRS):
 	mkdir -p $@
 
 out/%.o : src/%.c | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c -o $@ $<
+	arm-vita-eabi-g++ -I../common -c -o $@ $<
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)
