@@ -42,7 +42,7 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) -Wl,-q -o $@ $^ $(LIBS)
+	$(CXX) -Wl,-q -I../common -o $@ $^ $(LIBS)
 
 $(OBJ_DIRS):
 	mkdir -p $@
