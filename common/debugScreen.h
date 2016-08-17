@@ -30,8 +30,8 @@
 #define COLOR_GREY    0xFF808080
 
 static uint32_t* psvDebugScreenBase;
-static uint32_t psvDebugScreenCol = 0;
-static uint32_t psvDebugScreenRow = 0;
+static uint32_t psvDebugScreenCoordX = 0;
+static uint32_t psvDebugScreenCoordY = 0;
 static uint32_t psvDebugScreenColorFg;
 static uint32_t psvDebugScreenColorBg;
 static int psvDebugScreenMutex; /*< avoid race condition when outputing strings */
@@ -66,7 +66,7 @@ void psvDebugScreenInit() {
 }
 
 void psvDebugScreenClear(int bg_color){
-	psvDebugScreenCol = psvDebugScreenRow = 0;
+	psvDebugScreenCoordX = psvDebugScreenCoordY = 0;
 	int i;
 	for(i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
 		psvDebugScreenBase[i] = bg_color;
@@ -85,6 +85,14 @@ uint32_t psvDebugScreenSetBgColor(uint32_t color) {
 	return prev_color;
 }
 
+void psvDebugScreenSetCoordX(uint32_t x) {
+	psvDebugScreenCoordX = x;
+}
+
+void psvDebugScreenSetCoordY(uint32_t y) {
+	psvDebugScreenCoordY = y;
+}
+
 int psvDebugScreenPuts(const char * text){
 	int c, i, j, l;
 	uint8_t *font;
@@ -94,24 +102,24 @@ int psvDebugScreenPuts(const char * text){
 	sceKernelLockMutex(psvDebugScreenMutex, 1, NULL);
 
 	for (c = 0; text[c] != '\0' ; c++) {
-		if (psvDebugScreenCol + 8 > SCREEN_WIDTH) {
-			psvDebugScreenRow += 8;
-			psvDebugScreenCol = 0;
+		if (psvDebugScreenCoordX + 8 > SCREEN_WIDTH) {
+			psvDebugScreenCoordY += 8;
+			psvDebugScreenCoordX = 0;
 		}
-		if (psvDebugScreenRow + 8 > SCREEN_HEIGHT) {
+		if (psvDebugScreenCoordY + 8 > SCREEN_HEIGHT) {
 			psvDebugScreenClear(psvDebugScreenColorBg);
 		}
 		char ch = text[c];
 		if (ch == '\n') {
-			psvDebugScreenCol = 0;
-			psvDebugScreenRow += 8;
+			psvDebugScreenCoordX = 0;
+			psvDebugScreenCoordY += 8;
 			continue;
 		} else if (ch == '\r') {
-			psvDebugScreenCol = 0;
+			psvDebugScreenCoordX = 0;
 			continue;
 		}
 
-		vram = psvDebugScreenBase + psvDebugScreenCol + psvDebugScreenRow * SCREEN_FB_WIDTH;
+		vram = psvDebugScreenBase + psvDebugScreenCoordX + psvDebugScreenCoordY * SCREEN_FB_WIDTH;
 
 		font = &psvDebugScreenFont[ (int)ch * 8];
 		for (i = l = 0; i < 8; i++, l += 8, font++) {
@@ -123,7 +131,7 @@ int psvDebugScreenPuts(const char * text){
 			}
 			vram += SCREEN_FB_WIDTH;
 		}
-		psvDebugScreenCol += 8;
+		psvDebugScreenCoordX += 8;
 	}
 
 	sceKernelUnlockMutex(psvDebugScreenMutex, 1);
