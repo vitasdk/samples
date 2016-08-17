@@ -5,10 +5,10 @@ CC := arm-vita-eabi-gcc
 CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
-PROJECT_TITLE := HelloWorld
-PROJECT_TITLEID := FFFF00001
+PROJECT_TITLE := VitaSDK sample
+PROJECT_TITLEID := VSDK00001
 
-PROJECT := debug_print
+PROJECT := vita_sample
 CXXFLAGS += -std=c++11 -I../common
 CFLAGS += -I../common
 
