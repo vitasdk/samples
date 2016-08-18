@@ -5,13 +5,14 @@ CC := arm-vita-eabi-gcc
 CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
-PROJECT_TITLE := HTTP Sample
-PROJECT_TITLEID := FFFF00002
+PROJECT_TITLE := VitaSDK sample
+PROJECT_TITLEID := VSDK00001
 
-PROJECT := http
-CXXFLAGS += -std=c++11
+PROJECT := vita_sample
+CXXFLAGS += -std=c++11 -I../common
+CFLAGS += -I../common
 
-LIBS := -lSceDisplay_stub -lSceSysmodule_stub -lSceNet_stub -lSceNetCtl_stub -lSceHttp_stub
+LIBS := -lSceDisplay_stub -lSceCtrl_stub 
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
@@ -19,17 +20,13 @@ SRC_CPP :=$(call rwildcard, src/, *.cpp)
 OBJ_DIRS := $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o)))
 OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
 
+
 all: package
 
 package: $(PROJECT).vpk
 
 $(PROJECT).vpk: eboot.bin param.sfo
-	vita-pack-vpk -s param.sfo -b eboot.bin \
-		--add sce_sys/icon0.png=sce_sys/icon0.png \
-		--add sce_sys/livearea/contents/bg.png=sce_sys/livearea/contents/bg.png \
-		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
-		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
-	$(PROJECT).vpk
+	vita-pack-vpk -s param.sfo -b eboot.bin $(PROJECT).vpk
 	
 eboot.bin: $(PROJECT).velf
 	vita-make-fself $(PROJECT).velf eboot.bin
@@ -42,13 +39,16 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) -Wl,-q -o $@ $^ $(LIBS)
+	$(CXX) -Wl,-q $(CFLAGS)  -o $@ $^ $(LIBS)
 
 $(OBJ_DIRS):
 	mkdir -p $@
 
+out/%.o : src/%.cpp | $(OBJ_DIRS)
+	arm-vita-eabi-g++ -c $(CXXFLAGS) -o $@ $<
+
 out/%.o : src/%.c | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c -o $@ $<
+	arm-vita-eabi-g++ -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)

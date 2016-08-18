@@ -14,7 +14,7 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "graphics.h"
+#include "debugScreen.h"
 
 void netInit() {
 	psvDebugScreenPrintf("Loading module SCE_SYSMODULE_NET\n");

@@ -5,18 +5,19 @@ CC := arm-vita-eabi-gcc
 CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
-PROJECT_TITLE := VitaSDK sample
-PROJECT_TITLEID := VSDK00001
+PROJECT_TITLE := HTTP Sample
+PROJECT_TITLEID := FFFF00002
 
-PROJECT := vita_sample
+PROJECT := http
 CXXFLAGS += -std=c++11
+
+LIBS := -lSceDisplay_stub -lSceSysmodule_stub -lSceNet_stub -lSceNetCtl_stub -lSceHttp_stub
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
 
 OBJ_DIRS := $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o)))
 OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
-
 
 all: package
 
@@ -41,16 +42,13 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) -Wl,-q -o $@ $^
+	$(CXX) -Wl,-q -o $@ $^ $(LIBS)
 
 $(OBJ_DIRS):
 	mkdir -p $@
 
-out/%.o : src/%.cpp | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c $(CXXFLAGS) -o $@ $<
-
 out/%.o : src/%.c | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c -o $@ $<
+	arm-vita-eabi-g++ -I../common -c -o $@ $<
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)
