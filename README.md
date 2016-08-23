@@ -53,7 +53,7 @@ for f in */Makefile; do make -C ${f%/*} all; done
 ## Notes on XML
 - UTF-8 character encoding, CRLF line termination.
 - File size shall not exceed 32KB.
-- Different visual styles are available, check the sample `pretty_livearea`.
+- Different visual styles are available, check the sample `pretty_livearea` for an example.
 
 ## License
 
