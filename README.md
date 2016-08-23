@@ -6,31 +6,54 @@ In order to build a vita sample, you need to add the toolchain `bin/` directory 
 
 ## Building
 
-Every samples directories should contains a README file and a Makefile.
+Every samples directory should include a Makefile.
 To build a sample, place yourself into this directory and use the `make` command to build it.
 
 ## Running
 
 To run a sample:
-- send the generated `.vpk` to your vita :
-	- start an FTP server on your vita (for example with VitaShell by pressing the select button)
-	- upload the vpk to the vita using Curl (for example `curl -T *.vpk ftp://192.168.12.34:1337/ux0:/`)
-	- if curl return `fatal: No names found, cannot describe anything` it mean that you are trying to overwrite a folder with a file, add a `/` to the end of your url to explain that you want to upload IN this folder
-- install the .vpk on your vita using a vpk installer (for example using the VitaShell by pressing the X button on the .vpk)
-- this will create a new folder in the `ux0:/app/` folder (it name depend on the .vpk)
-- for further upload, you can directly skip the .vpk upload/install part, and directly re-install your binary (eboot.bin) inside the created /app/ folder
+- Send the generated `.vpk` to your vita:
+	- Start an FTP server on your vita (for example, with VitaShell - by pressing the select button).
+	- Upload the `.vpk` to the Vita using your FTP client (for example, with Curl - with `curl -T *.vpk ftp://YOUR_VITA_IP:1337/ux0:/`)
+	- If Curl returns `fatal: No names found, cannot describe anything` it mean that you are trying to overwrite a folder with a file. Add a `/` to the end of your url to explain that you want to upload IN this folder.
+- Install the `.vpk` on your vita using a vpk installer (for example, with VitaShell - by pressing the X button on the `.vpk`)
+- This will create a new folder in the `ux0:/app/` for the sample.
 
 ## Building everything
 
-Use the following command to build every samples
+Use the following command to build every samples:
 
 ```
 for f in */Makefile; do make -C ${f%/*} all; done
 ```
 
-## Notes
-- icon0.png, startup.png and bg.png must be using indexed palettes.
+## List of samples
+
+* `common`: Common functions for samples.
+* `ctrl`: A minimal controller (button) sample.
+* `debug_print`: A minimal debug print sample.
+* `hello_cpp_world`: A minimal hello world sample in C++.
+* `hello_world`: A minimal hello world sample.
+* `net_http`: A minimal HTTP download sample.
+* `rtc`: A minimal RTC sample.
+* `touch`: A minimal touch sample.
+* `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
+
+## Notes on images
+- Images shall use indexed palettes (PNG-8 128 Dithered).
+- The size of an image shall not exceed 420KB.
 - For some reasons, some PNG files created by GIMP makes the .vpk installation crash.
+- You can further minimize overhead by running your images through [pngquant](https://pngquant.org/).
+
+## Notes on supporting files and folders
+- File names shall not exceed 32B.
+- Directory names shall not exceed 16B.
+- Folder creation shall not exceed one level.
+
+## Notes on XML
+- UTF-8 character encoding, CRLF line termination.
+- File size shall not exceed 32KB.
+- Different visual styles are available, check the sample `pretty_livearea`.
 
 ## License
 
