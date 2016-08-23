@@ -35,9 +35,9 @@ for f in */Makefile; do make -C ${f%/*} all; done
 * `hello_cpp_world`: A minimal hello world sample in C++.
 * `hello_world`: A minimal hello world sample.
 * `net_http`: A minimal HTTP download sample.
+* `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
 * `rtc`: A minimal RTC sample.
 * `touch`: A minimal touch sample.
-* `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
 
 ## Notes on images
 - Images shall use indexed palettes (PNG-8 128 Dithered).
