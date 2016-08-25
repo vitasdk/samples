@@ -9,9 +9,9 @@
 
 /* main routine */
 int main(int argc, char *argv[]) 
-{
+{	
     SceCtrlData pad;
-	memset(&pad, 0, sizeof(pad));
+	
     int i = 0;
     int batteryLifeTime = 0;
     
@@ -22,44 +22,44 @@ int main(int argc, char *argv[])
 	printf("External power: %s\n", scePowerIsPowerOnline()? "yes" : "no ");
 	printf("Low charge: %s\n", scePowerIsLowBattery()? "yes" : "no ");
 	printf("Charging: %s\n", scePowerIsBatteryCharging()? "yes" : "no ");
-	batteryLifeTime = scePowerGetBatteryLifeTime();
 	printf("Battery life percent: %d%%\n", scePowerGetBatteryLifePercent());
+	batteryLifeTime = scePowerGetBatteryLifeTime();
 	printf("Battery life time: (%02dh%02dm)\n", batteryLifeTime/60, batteryLifeTime-(batteryLifeTime/60*60));
 	printf("Clock frequency of the ARM: %d mHz\n", scePowerGetArmClockFrequency());
 	printf("Clock frequency of the BUS: %d mHz\n", scePowerGetBusClockFrequency());
 	printf("Clock frequency of the GPU: %d mHz\n", scePowerGetGpuClockFrequency());
 	
 	printf("\nPress X to set ARM between 444 and 333 mHz\n");
-
 	
-	//check to see if the user pressed X to toggle CPU speed
-	if (pad.buttons & SCE_CTRL_CROSS) 
+	while (1) 
 	{
-		if (i == 0) 
+		memset(&pad, 0, sizeof(pad));
+		sceCtrlPeekBufferPositive(0, &pad, 1);
+		
+		//check to see if the user pressed X to toggle CPU speed
+		if (pad.buttons & SCE_CTRL_CROSS) 
 		{
-		    i = scePowerSetArmClockFrequency(444);
-		    if (i == 0) 
-				i = 1;
-			else 
+			if (i == 0) 
 			{
-				printf("\nCould not set CPU to 333mHz (0x%08X)\n", i);
-				i = 0;
-		    }
-		} 
+				i = scePowerSetArmClockFrequency(444);
+				if (i == 0) 
+					i = 1;
+				else 
+				{
+					printf("\nCould not set CPU to 333mHz (0x%08X)\n", i);
+					i = 0;
+				}
+			} 
+		}
 		else 
 		{
-		    i = scePowerSetArmClockFrequency(333);
+			i = scePowerSetArmClockFrequency(333);
 		    if (i != 0) 
 			{
 				printf("\nCould not set CPU to 222mHz (0x%08X)\n", i);
 				i = 1;
 		    }
 		}
-	}
-	
-	while (1) 
-	{
-		sceCtrlPeekBufferPositive(0, &pad, 1);
 	
 		if (pad.buttons & SCE_CTRL_START)
 			break;
