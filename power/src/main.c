@@ -10,12 +10,11 @@
 /* main routine */
 int main(int argc, char *argv[]) 
 {	
-    SceCtrlData pad;
-	
-    int i = 0;
-    int batteryLifeTime = 0;
+	SceCtrlData pad;
+	int i = 0;
+	int batteryLifeTime = 0;
     
-    psvDebugScreenInit();
+	psvDebugScreenInit();
 	
 	printf("PS Vita Power Sample v0.1\n\n");
 
@@ -54,11 +53,11 @@ int main(int argc, char *argv[])
 		else 
 		{
 			i = scePowerSetArmClockFrequency(333);
-		    if (i != 0) 
+			if (i != 0) 
 			{
 				printf("\nCould not set CPU to 222mHz (0x%08X)\n", i);
 				i = 1;
-		    }
+			}
 		}
 	
 		if (pad.buttons & SCE_CTRL_START)
@@ -67,5 +66,5 @@ int main(int argc, char *argv[])
 
 	sceKernelExitProcess(0);
 
-    return 0;
+	return 0;
 }
