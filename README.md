@@ -36,6 +36,7 @@ for f in */Makefile; do make -C ${f%/*} all; done
 * `hello_world`: A minimal hello world sample.
 * `net_http`: A minimal HTTP download sample.
 * `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
+* `power`: A minimal power sample.
 * `rtc`: A minimal RTC sample.
 * `touch`: A minimal touch sample.
 
