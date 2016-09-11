@@ -154,15 +154,13 @@ int psvDebugScreenPuts(const char * text){
 }
 
 int psvDebugScreenPrintf(const char *format, ...) {
-	char buf[512];
-
-	va_list opt;
-	va_start(opt, format);
-	int ret = vsnprintf(buf, sizeof(buf), format, opt);
-	psvDebugScreenPuts(buf);
-	va_end(opt);
-
-	return ret;
+    char *buf;
+    va_list opt;
+    va_start(opt, format);
+    int ret = asprintf(&buf, format, opt);
+    psvDebugScreenPuts(buf);
+    va_end(opt);
+    return ret;
 }
 
 #endif
