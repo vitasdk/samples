@@ -12,7 +12,7 @@ PROJECT := vita_sample
 CXXFLAGS += -std=c++11 -I../common
 CFLAGS += -I../common
 
-LIBS := -lSceCtrl_stub -lSceDisplay_stub -lSceKernel_stub -lScePower_stub   
+LIBS := -lSceCtrl_stub -lSceDisplay_stub -lScePower_stub   
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
