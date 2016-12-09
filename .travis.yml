@@ -1,0 +1,8 @@
+sudo: false
+
+script:
+    - cd $TRAVIS_BUILD_DIR
+    - curl https://api.github.com/repos/vitasdk/autobuilds/releases | grep browser_download_url | grep linux | head -n 1 | cut -d '"' -f 4 | xargs curl -L | tar xj
+    - export VITASDK=$PWD/vitasdk
+    - export PATH=$VITASDK/bin:$PATH
+    - for f in */Makefile; do make -C ${f%/*} all; done
