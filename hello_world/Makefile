@@ -1,3 +1,6 @@
+# Writing Vita Makefiles is now DEPRECATED. All you need is CMakeLists.txt
+# This is provided only for compatibility. Your project does NOT need this file.
+
 PHONY := all package clean
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
@@ -5,8 +8,8 @@ CC := arm-vita-eabi-gcc
 CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
-PROJECT_TITLE := VitaSDK sample
-PROJECT_TITLEID := VSDK00001
+PROJECT_TITLE := Hello World
+PROJECT_TITLEID := VSDK00006
 
 PROJECT := vita_sample
 CFLAGS += -Wl,-q -I../common
