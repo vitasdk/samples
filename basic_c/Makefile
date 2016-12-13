@@ -1,5 +1,5 @@
 CFLAGS += -I../common
-STUBS := Display Gxm AppUtil CommonDialog Sysmodule
+STUBS := 
 
 #no need to modify the following
 

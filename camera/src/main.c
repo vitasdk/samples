@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <psp2/kernel/sysmem.h>
+#include <psp2/kernel/processmgr.h>
 #include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/camera.h>
