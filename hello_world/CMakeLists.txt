@@ -61,9 +61,7 @@ target_link_libraries(hello_world
 )
 
 ## Create Vita files
-vita_create_self(hello_world.self hello_world
-  UNCOMPRESSED
-)
+vita_create_self(hello_world.self hello_world)
 # The FILE directive lets you add additional files to the VPK, the syntax is 
 # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
 vita_create_vpk(hello_world.vpk ${VITA_TITLEID} hello_world.self
