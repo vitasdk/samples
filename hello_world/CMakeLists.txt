@@ -38,6 +38,7 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
 # Add any additional include paths here
 include_directories(
+  ../common # This is for debugScreenPrintf(), you shouldn't need it in your projects
 )
 
 # Add any additional library paths here
@@ -56,10 +57,13 @@ add_executable(hello_world
 target_link_libraries(hello_world
   SceLibKernel_stub # this line is only for demonstration. It's not needed as 
                     # the most common stubs are automatically included.
+  SceDisplay_stub   # This used by debugScreenPrintf()
 )
 
 ## Create Vita files
-vita_create_self(hello_world.self hello_world)
+vita_create_self(hello_world.self hello_world
+  UNCOMPRESSED
+)
 # The FILE directive lets you add additional files to the VPK, the syntax is 
 # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
 vita_create_vpk(hello_world.vpk ${VITA_TITLEID} hello_world.self
