@@ -2,8 +2,10 @@
 #include <SDL2/SDL.h>
 
 //Screen dimension constants
-const int SCREEN_WIDTH  = 960;
-const int SCREEN_HEIGHT = 544;
+enum {
+  SCREEN_WIDTH  = 960,
+  SCREEN_HEIGHT = 544
+};
 
 SDL_Window    * gWindow   = NULL;
 SDL_Renderer  * gRenderer = NULL;
