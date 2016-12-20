@@ -27,13 +27,14 @@ add_executable(${SHORT_NAME}
 )
 
 target_link_libraries(${SHORT_NAME}
+  SDL2
+  vita2d
   SceDisplay_stub
   SceCtrl_stub
   SceAudio_stub
-  SDL2
   SceSysmodule_stub
   SceGxm_stub
-  vita2d
+  SceCommonDialog_stub
   m
 )
 
