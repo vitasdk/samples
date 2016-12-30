@@ -9,7 +9,8 @@ PROJECT_TITLE := VitaSDK sample
 PROJECT_TITLEID := VSDK00001
 
 PROJECT := vita_sample
-CXXFLAGS += -std=c++11
+CFLAGS += -Wl,-q -I../common
+CXXFLAGS += -Wl,-q -std=c++11 -I../common
 
 SRC_C :=$(call rwildcard, src/, *.c)
 SRC_CPP :=$(call rwildcard, src/, *.cpp)
@@ -17,6 +18,8 @@ SRC_CPP :=$(call rwildcard, src/, *.cpp)
 OBJ_DIRS := $(addprefix out/, $(dir $(SRC_C:src/%.c=%.o))) $(addprefix out/, $(dir $(SRC_CPP:src/%.cpp=%.o)))
 OBJS := $(addprefix out/, $(SRC_C:src/%.c=%.o)) $(addprefix out/, $(SRC_CPP:src/%.cpp=%.o))
 
+# Needed by psvDebugScreenPrintf
+LIBS += -lSceDisplay_stub
 
 all: package
 
@@ -41,7 +44,7 @@ $(PROJECT).velf: $(PROJECT).elf
 	vita-elf-create $< $@
 
 $(PROJECT).elf: $(OBJS)
-	$(CXX) -Wl,-q -o $@ $^
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o $@
 
 $(OBJ_DIRS):
 	mkdir -p $@
@@ -50,7 +53,7 @@ out/%.o : src/%.cpp | $(OBJ_DIRS)
 	arm-vita-eabi-g++ -c $(CXXFLAGS) -o $@ $<
 
 out/%.o : src/%.c | $(OBJ_DIRS)
-	arm-vita-eabi-g++ -c -o $@ $<
+	arm-vita-eabi-gcc -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(PROJECT).velf $(PROJECT).elf $(PROJECT).vpk param.sfo eboot.bin $(OBJS)
