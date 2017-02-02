@@ -1,11 +1,9 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <psp2/gxm.h>
 #include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/kernel/sysmem.h>
-//#include "math_utils.h"
 
 #define ALIGN(x, a) (((x) + ((a) - 1)) & ~((a) - 1))
 
