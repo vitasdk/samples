@@ -1,0 +1,17 @@
+void main(
+	float3 position,
+	float2 texcoord,
+	uniform float4x4 u_model_matrix,
+	uniform float4x4 u_view_matrix,
+	uniform float4x4 u_projection_matrix,
+	out float4 out_position : POSITION,
+	out float2 out_texcoord: TEXCOORD0)
+{
+	float4x4 mvp = mul(u_projection_matrix, mul(u_view_matrix, u_model_matrix));
+
+	/*
+	 * out_position = projection * view * model * in_position;
+	 */
+	out_position = mul(mvp, float4(position, 1.0f));
+	out_texcoord = texcoord;
+}
