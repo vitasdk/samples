@@ -6,8 +6,8 @@ In order to build a vita sample, you need to add the toolchain `bin/` directory 
 
 ## Building
 
-Every samples directory should include a Makefile.
-To build a sample, place yourself into this directory and use the `make` command to build it.
+Every samples directory should include a CMake list.
+To build a sample, place yourself into this directory and use the `cmake . && make` command to build it.
 
 ## Running
 
@@ -24,7 +24,9 @@ To run a sample:
 Use the following command to build every samples:
 
 ```
-for f in */Makefile; do make -C ${f%/*} all; done
+mkdir build && cd build
+cmake ..
+make
 ```
 
 ## List of samples
