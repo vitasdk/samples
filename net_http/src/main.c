@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 	netInit();
 	httpInit();
 
-	download("http://barooney.com/", "ux0:temp/index.html");
+	download("http://barooney.com/", "ux0:data/index.html");
 
 	httpTerm();
 	netTerm();
