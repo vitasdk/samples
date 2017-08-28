@@ -5,11 +5,10 @@
 	  an average of the audioIn buffer
 	- increase or decrease the sensitivity
 	  of the VU meter with up/down buttons
-	- exit with start
+	- exit with select
 
 	Enjoy,
 		-pyroesp
-
 */
 
 
