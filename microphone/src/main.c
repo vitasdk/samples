@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
 
 	psvDebugScreenInit();
 	printf("Microphone test:\n\n");
-	printf("Press up/down for sensitivity.\nPress select to quit.\n\n");
+	printf("Press up/down for VU sensitivity.\nPress select to quit.\n\n");
 
 	audioIn = (short*)malloc(sizeof(short) * size);
 	memset(audioIn, 0, sizeof(short) * size);
@@ -105,6 +105,9 @@ int main(int argc, char *argv[]){
 		
 		average /= size;
 		average = ((average * sensitivity) * MAX_VU) / audioInMax;	
+		/* Get microphone status */
+		/* Other values than 1 in GetStatus returns 0x80260106 */
+		printf("\nYour microphone is %s\n\n", sceAudioInGetStatus(1)?"disabled.": "enabled. ");
 		printf("\nSimple VU meter: (sensitivity = %3d)\n\n\n", sensitivity);		
 		for (i = 0; i < MAX_VU; i++){
 			psvDebugScreenCoordX = 56;
