@@ -22,9 +22,9 @@
 
 #define COLOR_BLACK      0xFF000000
 #define COLOR_RED        0xFF0000FF
-#define COLOR_BLUE       0xFF00FF00
+#define COLOR_GREEN      0xFF00FF00
 #define COLOR_YELLOW     0xFF00FFFF
-#define COLOR_GREEN      0xFFFF0000
+#define COLOR_BLUE       0xFFFF0000
 #define COLOR_MAGENTA    0xFFFF00FF
 #define COLOR_CYAN       0xFFFFFF00
 #define COLOR_WHITE      0xFFFFFFFF
