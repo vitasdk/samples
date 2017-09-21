@@ -25,7 +25,6 @@
 #define NET_PARAM_MEM_SIZE (1*1024*1024)
 
 /* IP */
-#define IP_VITA "192.168.1.39" /* not used in sample */
 #define IP_GOOGLE_DNS "8.8.8.8"
 
 /* Arbitrary payload size for ICMP */
@@ -39,12 +38,12 @@ typedef struct{
 	uint32_t sequence;
 	uint32_t ack_num;
 	union{
-	    uint16_t data_flags;
-        struct{
-            uint16_t data_offset : 4;
-            uint16_t reserved : 3;
-            uint16_t flags : 9;
-        };
+		uint16_t data_flags;
+		struct{
+			uint16_t data_offset : 4;
+			uint16_t reserved : 3;
+			uint16_t flags : 9;
+		};
 	};
 	uint16_t window_size;
 	uint16_t checksum;
@@ -84,7 +83,6 @@ int main (int *argc, char *argv[]){
 	int32_t sent_data; /* return value for sendto function */
 	int32_t received_data; /* return value for recvfrom function */
 	uint32_t packet_size; /* Packet to send size */
-	SceNetInAddr src_addr; /* source address, not used in this sample */
 	SceNetInAddr dst_addr; /* destination address */
 	SceNetSockaddrIn serv_addr; /* server address to send data to */
 	SceNetIcmpHeader *icmphdr; /* ICMP header structure */
@@ -102,7 +100,6 @@ int main (int *argc, char *argv[]){
 
 	/* Change IP string to IP uint */
 	printf("Converting IP address.\n");
-	sceNetInetPton(SCE_NET_AF_INET, IP_VITA, (void*)&src_addr); /* not used */
 	sceNetInetPton(SCE_NET_AF_INET, IP_GOOGLE_DNS, (void*)&dst_addr);
 	
 	/* Create raw socket type with icmp net protocol */
@@ -135,7 +132,6 @@ int main (int *argc, char *argv[]){
 	
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
 	serv_addr.sin_addr = dst_addr; /* set destination address */
-	serv_addr.sin_port = sceNetHtons(80); /* port */
 	memset(&serv_addr.sin_zero, 0, sizeof(serv_addr.sin_zero)); /* fill sin_zero with zeroes */
 
 	/* Send data */
@@ -160,7 +156,7 @@ int main (int *argc, char *argv[]){
 		goto exit;
 	
 	TcpHdr *tcphdr = (TcpHdr*)recv_packet; /* get tcp header pointer*/
-	TcpFlag *tcpflag = (TcpFlag*)&tcphdr->data_flags; /* get tcp flag pointer if you want to be able to access individual bits, not used in this sample */
+	TcpFlag *tcpflag = (TcpFlag*)&tcphdr->data_flags; /* get tcp flag pointer if you want to be able to access individual bits */
 	SceNetIcmpHeader *recv_icmphdr = (SceNetIcmpHeader*)(recv_packet + sizeof(TcpHdr)); /* get icmp pointer of received packet */
 	char *recv_payload = recv_packet + sizeof(TcpHdr) + sizeof(SceNetIcmpHeader); /* get payload pointer */
 
@@ -254,7 +250,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 	psvDebugScreenSetBgColor(0xFF000000);
 	
 	printf("Raw TCP dump:\n");
-	printf("---------\n");
+	printf("-------------\n");
 	for (i = 0; i < received_data; i++){
 		if (i){
 			psvDebugScreenSetBgColor(0xFF000000);
@@ -327,7 +323,7 @@ void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icm
 	printf("Payload : %s\n\n", payload);
 	psvDebugScreenSetBgColor(0xFF000000);
 	printf("Raw ICMP dump:\n");
-	printf("---------\n\n");
+	printf("--------------\n\n");
 	for (i = 0; i < packet_size; i++){
 		if (i){
 			psvDebugScreenSetBgColor(0xFF000000);
