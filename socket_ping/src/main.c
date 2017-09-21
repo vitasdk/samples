@@ -74,7 +74,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icmphdr, char *payload);
 
 
-int main (int *argc, char *argv[]){
+int main (int argc, char *argv[]){
 	char *packet; /* Packet to send */
 	char *payload; /* Payload inside packet */
 	int32_t retval; /* return value */
@@ -188,8 +188,6 @@ exit:
 
 
 uint16_t in_cksum(uint16_t *ptr, int32_t nbytes){
-	uint16_t swap;
-	uint32_t i;
 	uint32_t sum;
 	sum = 0;
 	while (nbytes > 1){
