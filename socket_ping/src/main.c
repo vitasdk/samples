@@ -156,7 +156,7 @@ int main (int *argc, char *argv[]){
 		goto exit;
 	
 	TcpHdr *tcphdr = (TcpHdr*)recv_packet; /* get tcp header pointer*/
-	TcpFlag *tcpflag = (TcpFlag*)&tcphdr->data_flags; /* get tcp flag pointer if you want to be able to access individual bits */
+	TcpFlag *tcpflag = (TcpFlag*)&tcphdr->data_flags; /* get tcp flag pointer if you want to be able to access individual bits, not used in this sample */
 	SceNetIcmpHeader *recv_icmphdr = (SceNetIcmpHeader*)(recv_packet + sizeof(TcpHdr)); /* get icmp pointer of received packet */
 	char *recv_payload = recv_packet + sizeof(TcpHdr) + sizeof(SceNetIcmpHeader); /* get payload pointer */
 
