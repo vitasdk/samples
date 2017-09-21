@@ -117,7 +117,7 @@ int psvDebugScreenPuts(const char * text){
 
 	for (c = 0; text[c] != '\0' ; c++) {
 		if (text[c] == '\t') {
-			psvDebugScreenCoordX += SCREEN_GLYPH_H * SCREEN_TAB_SIZE;
+			psvDebugScreenCoordX = (psvDebugScreenCoordX + (SCREEN_GLYPH_W * (SCREEN_TAB_SIZE))) / (SCREEN_GLYPH_W * SCREEN_TAB_SIZE) * (SCREEN_GLYPH_W * SCREEN_TAB_SIZE);
 			continue;
 		}
 		if (psvDebugScreenCoordX + 8 > SCREEN_WIDTH) {
