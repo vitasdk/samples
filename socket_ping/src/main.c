@@ -30,25 +30,6 @@
 /* Arbitrary payload size for ICMP */
 #define ICMP_MIN_PAYLOAD (32) 
 
-/* From wikipedia TCP Header table */
-/* TCP header struct */
-typedef struct{
-	uint16_t src;
-	uint16_t dst;
-	uint32_t sequence;
-	uint32_t ack_num;
-	union{
-		uint16_t data_flags;
-		struct{
-			uint16_t data_offset : 4;
-			uint16_t reserved : 3;
-			uint16_t flags : 9;
-		};
-	};
-	uint16_t window_size;
-	uint16_t checksum;
-	uint16_t urgent_ptr;
-}TcpHdr;
 
 /* TCP Flag bits struct */
 typedef struct{
@@ -63,8 +44,42 @@ typedef struct{
 		unsigned short rst : 1;
 		unsigned short syn : 1;
 		unsigned short fin : 1;
-	}bit;
-}TcpFlag;
+	};
+}TcpFlagBits;
+
+/* From wikipedia TCP Header table */
+/* TCP header struct */
+typedef struct{
+	uint16_t src;
+	uint16_t dst;
+	uint32_t sequence;
+	uint32_t ack_num;
+	union{
+		uint16_t data_flags;
+		struct{
+			uint16_t data_offset : 4;
+			uint16_t reserved : 3;
+			uint16_t flags : 9;
+		};
+		TcpFlagBits bit;
+	};
+	uint16_t window_size;
+	uint16_t checksum;
+	uint16_t urgent_ptr;
+}TcpHdr;
+
+/* ICMP Packet structure */
+typedef struct{
+	SceNetIcmpHeader hdr;
+	char payload[ICMP_MIN_PAYLOAD];
+}IcmpPacket;
+
+/* TCMP Packet (containing ICMP packet) structure */
+typedef struct{
+	TcpHdr hdr;
+	IcmpPacket icmp;
+}TcpPacket;
+
 
 
 /* ICMP Checksum */
@@ -75,18 +90,16 @@ void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icm
 
 
 int main (int argc, char *argv[]){
-	char *packet; /* Packet to send */
-	char *payload; /* Payload inside packet */
+	char *icmp_packet; /* ICMP Packet to send */
 	int32_t retval; /* return value */
 	int32_t sfd; /* Socket file descriptor */
 	int32_t on; /* used in Setsockopt function */
 	int32_t sent_data; /* return value for sendto function */
 	int32_t received_data; /* return value for recvfrom function */
-	uint32_t packet_size; /* Packet to send size */
 	SceNetInAddr dst_addr; /* destination address */
 	SceNetSockaddrIn serv_addr; /* server address to send data to */
-	SceNetIcmpHeader *icmphdr; /* ICMP header structure */
 	SceNetInitParam net_init_param; /* Net init param structure */
+	IcmpPacket icmp; /* ICMP packet structure */
 
 	psvDebugScreenInit(); /* start psvDebugScreen */
 	sceSysmoduleLoadModule(SCE_SYSMODULE_NET); /* load NET module */
@@ -114,55 +127,44 @@ int main (int argc, char *argv[]){
 		goto exit;
 	printf("Allow socket to broadcast.\n");
 	
-	/* Malloc packet to send */
-	packet_size = sizeof(SceNetIcmpHeader) + ICMP_MIN_PAYLOAD; /* packet size is sizeof ICMP header + payload buffer size */
-	packet = (char*)malloc(packet_size);
-	memset(packet, 0, packet_size); /* set packet to 0 */
-	icmphdr = (SceNetIcmpHeader*)packet; /* get icmp header pointer */
-	payload = packet + sizeof(SceNetIcmpHeader); /* get payload pointer */
-	printf("Malloc packet and set pointers for ICMP header and payload.\n\n");
+	icmp.hdr.type = SCE_NET_ICMP_TYPE_ECHO_REQUEST; /* set icmp type to echo request */
+	icmp.hdr.code = SCE_NET_ICMP_CODE_DEST_UNREACH_NET_UNREACH;
+	icmp.hdr.un.echo.id = 0x1; /* arbitrary id */
+	icmp.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
 	
-	icmphdr->type = SCE_NET_ICMP_TYPE_ECHO_REQUEST; /* set icmp type to echo request */
-	icmphdr->code = SCE_NET_ICMP_CODE_DEST_UNREACH_NET_UNREACH;
-	icmphdr->un.echo.id = 0x0100; /* arbitrary id */
-	icmphdr->un.echo.sequence = 0x3412; /* arbitrary sequence */
-	
-	strncpy(payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* fill payload with random text, this will get sent back */
-	icmphdr->checksum = in_cksum((uint16_t*)packet, packet_size); /* compute checksum */
+	strncpy(icmp.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* fill payload with random text, this will get sent back */
+
+	icmp_packet = (char*)&icmp;
+	icmp.hdr.checksum = in_cksum((uint16_t*)icmp_packet, sizeof(IcmpPacket)); /* compute checksum */
 	
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
 	serv_addr.sin_addr = dst_addr; /* set destination address */
 	memset(&serv_addr.sin_zero, 0, sizeof(serv_addr.sin_zero)); /* fill sin_zero with zeroes */
 
 	/* Send data */
-	sent_data = sceNetSendto(sfd, packet, packet_size, 0, (SceNetSockaddr*)&serv_addr, sizeof(SceNetSockaddr));
+	sent_data = sceNetSendto(sfd, icmp_packet, sizeof(IcmpPacket), 0, (SceNetSockaddr*)&serv_addr, sizeof(SceNetSockaddr));
 	if (sent_data < 1)
 		goto exit; /* send failed */
 	
 	printf("Data sent:\n");
 	printf("----------\n\n");
-	displaySentPacket(packet, packet_size, icmphdr, payload); /* Display colored data */
+	displaySentPacket(icmp_packet, sizeof(IcmpPacket), &icmp.hdr, icmp.payload); /* Display colored data */
 	
 	/* Receive data */
 	SceNetSockaddr from_addr;
 	uint32_t from_len = sizeof(from_addr);
-	uint32_t recv_len = 512; /* arbitrary receive buffer length */
-	char *recv_packet = (char*)malloc(recv_len); /* malloc receive packet */
-	memset(recv_packet, 0, recv_len); /* set packet to 0 */
+
+	TcpPacket tcp;
+	char *recv_packet = (char*)&tcp;
 
 	printf("\n\nReceiving data.\n");
-	received_data = sceNetRecvfrom(sfd, recv_packet, recv_len, SCE_NET_MSG_WAITALL, &from_addr, (unsigned int*)&from_len);
+	received_data = sceNetRecvfrom(sfd, recv_packet, sizeof(TcpPacket), SCE_NET_MSG_WAITALL, &from_addr, (unsigned int*)&from_len);
 	if (received_data < 1)
 		goto exit;
 	
-	TcpHdr *tcphdr = (TcpHdr*)recv_packet; /* get tcp header pointer*/
-	TcpFlag *tcpflag = (TcpFlag*)&tcphdr->data_flags; /* get tcp flag pointer if you want to be able to access individual bits, not used in this sample */
-	SceNetIcmpHeader *recv_icmphdr = (SceNetIcmpHeader*)(recv_packet + sizeof(TcpHdr)); /* get icmp pointer of received packet */
-	char *recv_payload = recv_packet + sizeof(TcpHdr) + sizeof(SceNetIcmpHeader); /* get payload pointer */
-
 	printf("Data received:\n");
 	printf("--------------\n\n");
-	displayRecvPacket(recv_packet, received_data, tcphdr, recv_icmphdr, recv_payload); /* display colored data */
+	displayRecvPacket(recv_packet, sizeof(TcpPacket), &tcp.hdr, &tcp.icmp.hdr, tcp.icmp.payload); /* display colored data */
 	
 	/* Select to exit */
 	printf("\n\n\n\n\n\n                Press select to exit.\n");
@@ -175,9 +177,6 @@ int main (int argc, char *argv[]){
 		sceKernelDelayThread(100*1000);
 	}
 	
-	/* free data */
-	free(packet);
-	free(recv_packet);
 	sceNetSocketClose(sfd); /* Close socket */
 exit:
 	sceNetTerm(); /* Close net */
