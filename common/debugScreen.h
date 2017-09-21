@@ -19,6 +19,7 @@
 #define SCREEN_FB_ALIGN (256 * 1024)
 #define SCREEN_GLYPH_W  (8)
 #define SCREEN_GLYPH_H  (8)
+#define SCREEN_TAB_SIZE (4)
 
 #define COLOR_BLACK      0xFF000000
 #define COLOR_RED        0xFF0000FF
@@ -115,6 +116,10 @@ int psvDebugScreenPuts(const char * text){
 	sceKernelLockMutex(psvDebugScreenMutex, 1, NULL);
 
 	for (c = 0; text[c] != '\0' ; c++) {
+		if (text[c] == '\t') {
+			psvDebugScreenCoordX += SCREEN_GLYPH_H * SCREEN_TAB_SIZE;
+			continue;
+		}
 		if (psvDebugScreenCoordX + 8 > SCREEN_WIDTH) {
 			psvDebugScreenCoordY += SCREEN_GLYPH_H;
 			psvDebugScreenCoordX = 0;
