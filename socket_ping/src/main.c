@@ -68,13 +68,13 @@ typedef struct{
 	uint16_t urgent_ptr;
 }TcpHdr;
 
-/* ICMP Packet structure */
+/* ICMP Packet structure (= icmp header + payload) */
 typedef struct{
 	SceNetIcmpHeader hdr;
 	char payload[ICMP_MIN_PAYLOAD];
 }IcmpPacket;
 
-/* TCMP Packet (containing ICMP packet) structure */
+/* TCP Packet structure (= tcp header + icmp packet) */
 typedef struct{
 	TcpHdr hdr;
 	IcmpPacket icmp;
@@ -150,9 +150,8 @@ int main (int argc, char *argv[]){
 	icmp.icmp_struct.hdr.un.echo.id = 0x1; /* arbitrary id */
 	icmp.icmp_struct.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
 	
-	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* fill payload with random text, this will get sent back */
-
-	//icmp_packet = (char*)&icmp;
+	/* fill payload with random text, this will get sent back */
+	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* if const char* < size num, pad remainder with zeroes */
 	icmp.icmp_struct.hdr.checksum = in_cksum(icmp.icmp_u16buff, sizeof(IcmpPacket)); /* compute checksum */
 	
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
