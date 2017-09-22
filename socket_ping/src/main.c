@@ -151,7 +151,7 @@ int main (int argc, char *argv[]){
 	icmp.icmp_struct.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
 	
 	/* fill payload with random text, this will get sent back */
-	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* if const char* < size num, pad remainder with zeroes */
+	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* NB: strncpy fills the remainder of the buffer with zeroes */
 	icmp.icmp_struct.hdr.checksum = in_cksum(icmp.icmp_u16buff, sizeof(IcmpPacket)); /* compute checksum */
 	
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
