@@ -68,18 +68,35 @@ typedef struct{
 	uint16_t urgent_ptr;
 }TcpHdr;
 
-/* ICMP Packet structure */
+/* ICMP Packet structure (= icmp header + payload) */
 typedef struct{
 	SceNetIcmpHeader hdr;
 	char payload[ICMP_MIN_PAYLOAD];
 }IcmpPacket;
 
-/* TCMP Packet (containing ICMP packet) structure */
+/* TCP Packet structure (= tcp header + icmp packet) */
 typedef struct{
 	TcpHdr hdr;
 	IcmpPacket icmp;
 }TcpPacket;
 
+/* 
+	Union needed to correctly access the network packets
+	- IcmpPacket for the structure of the packet 
+	- uin16_t[] for the checksum
+	- char[] for the sendto and recvfrom functions
+*/
+typedef union{
+	IcmpPacket icmp_struct;
+	uint16_t icmp_u16buff[sizeof(IcmpPacket)/sizeof(uint16_t)];
+	char icmp_packet[sizeof(IcmpPacket)];
+}IcmpUnion;
+
+typedef union{
+	TcpPacket tcp_struct;
+	uint16_t tcp_u16buff[sizeof(TcpPacket)/sizeof(uint16_t)];
+	char tcp_packet[sizeof(TcpPacket)];
+}TcpUnion;
 
 
 /* ICMP Checksum */
@@ -90,7 +107,6 @@ void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icm
 
 
 int main (int argc, char *argv[]){
-	char *icmp_packet; /* ICMP Packet to send */
 	int32_t retval; /* return value */
 	int32_t sfd; /* Socket file descriptor */
 	int32_t on; /* used in Setsockopt function */
@@ -99,7 +115,9 @@ int main (int argc, char *argv[]){
 	SceNetInAddr dst_addr; /* destination address */
 	SceNetSockaddrIn serv_addr; /* server address to send data to */
 	SceNetInitParam net_init_param; /* Net init param structure */
-	IcmpPacket icmp; /* ICMP packet structure */
+
+	IcmpUnion icmp; /* icmp union */
+	TcpUnion tcp; /* tcp union */
 
 	psvDebugScreenInit(); /* start psvDebugScreen */
 	sceSysmoduleLoadModule(SCE_SYSMODULE_NET); /* load NET module */
@@ -127,44 +145,40 @@ int main (int argc, char *argv[]){
 		goto exit;
 	printf("Allow socket to broadcast.\n");
 	
-	icmp.hdr.type = SCE_NET_ICMP_TYPE_ECHO_REQUEST; /* set icmp type to echo request */
-	icmp.hdr.code = SCE_NET_ICMP_CODE_DEST_UNREACH_NET_UNREACH;
-	icmp.hdr.un.echo.id = 0x1; /* arbitrary id */
-	icmp.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
+	icmp.icmp_struct.hdr.type = SCE_NET_ICMP_TYPE_ECHO_REQUEST; /* set icmp type to echo request */
+	icmp.icmp_struct.hdr.code = SCE_NET_ICMP_CODE_DEST_UNREACH_NET_UNREACH;
+	icmp.icmp_struct.hdr.un.echo.id = 0x1; /* arbitrary id */
+	icmp.icmp_struct.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
 	
-	strncpy(icmp.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* fill payload with random text, this will get sent back */
-
-	icmp_packet = (char*)&icmp;
-	icmp.hdr.checksum = in_cksum((uint16_t*)icmp_packet, sizeof(IcmpPacket)); /* compute checksum */
+	/* fill payload with random text, this will get sent back */
+	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* NB: strncpy fills the remainder of the buffer with zeroes */
+	icmp.icmp_struct.hdr.checksum = in_cksum(icmp.icmp_u16buff, sizeof(IcmpPacket)); /* compute checksum */
 	
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
 	serv_addr.sin_addr = dst_addr; /* set destination address */
 	memset(&serv_addr.sin_zero, 0, sizeof(serv_addr.sin_zero)); /* fill sin_zero with zeroes */
 
 	/* Send data */
-	sent_data = sceNetSendto(sfd, icmp_packet, sizeof(IcmpPacket), 0, (SceNetSockaddr*)&serv_addr, sizeof(SceNetSockaddr));
+	sent_data = sceNetSendto(sfd, icmp.icmp_packet, sizeof(IcmpPacket), 0, (SceNetSockaddr*)&serv_addr, sizeof(SceNetSockaddr));
 	if (sent_data < 1)
 		goto exit; /* send failed */
 	
 	printf("Data sent:\n");
 	printf("----------\n\n");
-	displaySentPacket(icmp_packet, sizeof(IcmpPacket), &icmp.hdr, icmp.payload); /* Display colored data */
+	displaySentPacket(icmp.icmp_packet, sizeof(IcmpPacket), &icmp.icmp_struct.hdr, icmp.icmp_struct.payload); /* Display colored data */
 	
 	/* Receive data */
 	SceNetSockaddr from_addr;
 	uint32_t from_len = sizeof(from_addr);
 
-	TcpPacket tcp;
-	char *recv_packet = (char*)&tcp;
-
 	printf("\n\nReceiving data.\n");
-	received_data = sceNetRecvfrom(sfd, recv_packet, sizeof(TcpPacket), SCE_NET_MSG_WAITALL, &from_addr, (unsigned int*)&from_len);
+	received_data = sceNetRecvfrom(sfd, tcp.tcp_packet, sizeof(TcpPacket), SCE_NET_MSG_WAITALL, &from_addr, (unsigned int*)&from_len);
 	if (received_data < 1)
 		goto exit;
 	
 	printf("Data received:\n");
 	printf("--------------\n\n");
-	displayRecvPacket(recv_packet, sizeof(TcpPacket), &tcp.hdr, &tcp.icmp.hdr, tcp.icmp.payload); /* display colored data */
+	displayRecvPacket(tcp.tcp_packet, sizeof(TcpPacket), &tcp.tcp_struct.hdr, &tcp.tcp_struct.icmp.hdr, tcp.tcp_struct.icmp.payload); /* display colored data */
 	
 	/* Select to exit */
 	printf("\n\n\n\n\n\n                Press select to exit.\n");
