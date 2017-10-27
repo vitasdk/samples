@@ -159,6 +159,7 @@ int psvDebugScreenPuts(const char * text){
 	return c;
 }
 
+__attribute__((__format__ (__printf__, 1, 2)))
 int psvDebugScreenPrintf(const char *format, ...) {
 	char buf[512];
 
