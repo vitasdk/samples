@@ -12,8 +12,8 @@ set(SHORT_NAME debug_print)
 project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
-set(VITA_APP_NAME "Print example")
-set(VITA_TITLEID  "VSDK00004")
+set(VITA_APP_NAME "psvDebugPrintf demo")
+set(VITA_TITLEID  "VSDK00044")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
