@@ -8,14 +8,14 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-set(SHORT_NAME debug_print)
+set(SHORT_NAME socket_ping)
 project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
-set(VITA_APP_NAME "Print example")
-set(VITA_TITLEID  "VSDK00004")
+set(VITA_APP_NAME "HTTP BSD socket")
+set(VITA_TITLEID  "VSDK00021")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(
@@ -28,6 +28,9 @@ add_executable(${SHORT_NAME}
 
 target_link_libraries(${SHORT_NAME}
   SceDisplay_stub
+  SceCtrl_stub
+  SceNet_stub
+  SceSysmodule_stub
 )
 
 vita_create_self(${SHORT_NAME}.self ${SHORT_NAME})

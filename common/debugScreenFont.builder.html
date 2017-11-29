@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.glyph>input{padding:0;margin:0}
+.glyph>input:not(:checked){opacity:0.2}
+.glyph>input:checked{opacity:1}
+.glyph{padding:3px;display:inline-grid;}
+#source{width:100%;height:10em;}
+</style>
+<script>
+function toHTML(c_source) {
+	var f=eval(source.value.replace(/(\/\*[\s\S]*?\*\/|"\s"|PsvDebugScreenFont|\(.*?\))/g,''))
+	if((f.width * f.height) % 8)
+		return alert("Font Width*Height not a byte(8) multiple");
+	var w = f.width, h = f.height;
+	var bits = [].concat(...f.glyphs.split('').map(c=>('0000000'+c.charCodeAt(0).toString(2)).slice(-8).split('').map(c=>+c)));
+	var style = 'style="grid-template-columns:'+[...Array(w)].map(c=>"auto").join(' ')+'"';
+	return [...Array((f.glyphs.length*8)/(w*h))].map((c,i)=>'<div class="glyph" oncontextmenu="[...this.children].forEach(i=>i.removeAttribute(\'checked\'));event.preventDefault()" '+style+' title="&#'+(i + f.first)+'; ('+(i + f.first)+')">'+
+	       [...Array(w*h)].map((c,j)=>'<input type="checkbox" '+(bits[i*w*h+j]?'checked':'')+'/>').join('')+'</div>').join('')
+}
+function toHeader(checks) {
+	var glyphs = checks.map(i=>i.checked?'1':'0').join('').match(/.{8}/g).map(s=>'\\x'+("0"+parseInt(s,2).toString(16)).slice(-2)).join('');
+	return `PsvDebugScreenFont psvDebugScreenFont = {
+	glyphs:(unsigned char*)"${glyphs}",
+	width :${psvDebugScreenFont.width},
+	height:${psvDebugScreenFont.height},
+	first :${psvDebugScreenFont.first},
+	last  :${psvDebugScreenFont.last},
+	size_w:${psvDebugScreenFont.size_w},
+	size_h:${psvDebugScreenFont.size_h}
+};`
+}
+</script>
+</head>
+<body>
+<textarea id="source"></textarea>
+<button onclick="try{glyphList.innerHTML=toHTML(source.value)}catch(e){alert(e)}">Load .h</button>
+<button onclick="try{source.value=toHeader([...document.querySelectorAll('.glyph>input')])}catch(e){alert(e)}">Save .h</button>
+<button onclick="fetch('https://raw.githubusercontent.com/vitasdk/samples/master/common/debugScreenFont.c').then(r=>r.text()).then(val => source.value = val)">Get VitaSDK .h</button>
+<div id="glyphList"></div>
+</body>

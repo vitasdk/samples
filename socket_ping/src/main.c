@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "debugScreen.h"
 
@@ -105,6 +106,12 @@ uint16_t in_cksum(uint16_t *ptr, int32_t nbytes); /* Algorithm from RFC1071 */
 void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr, SceNetIcmpHeader *recv_icmphdr, char *recv_payload);
 void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icmphdr, char *payload);
 
+void psvDebugScreenSetFgColor(uint32_t rgb){
+	printf("\e[38;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
+}
+void psvDebugScreenSetBgColor(uint32_t rgb){
+	printf("\e[48;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
+}
 
 int main (int argc, char *argv[]){
 	int32_t retval; /* return value */
@@ -219,26 +226,26 @@ uint16_t in_cksum(uint16_t *ptr, int32_t nbytes){
 
 void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr, SceNetIcmpHeader *recv_icmphdr, char *recv_payload){
 	uint32_t i;
-	printf("Total Reply packet size = %d\n\n", received_data);
+	printf("Total Reply packet size = %"PRIu32"\n\n", received_data);
 	
 	printf("TCP Header:\n");
 	printf("-----------\n");
 	psvDebugScreenSetBgColor(0xFF808080);
 	printf("TCP src = 0x%04X\n", tcphdr->src);
 	psvDebugScreenSetBgColor(0xFF0000FF);
-	psvDebugScreenSetFgColor(COLOR_BLACK);
+	psvDebugScreenSetFgColor(0xFF000000);
 	printf("TCP dst = 0x%04X\n", tcphdr->dst);
 	psvDebugScreenSetBgColor(0xFFC8FAFF);
-	printf("TCP sequence = 0x%08X\n", tcphdr->sequence);
-	psvDebugScreenSetFgColor(COLOR_WHITE);
+	printf("TCP sequence = 0x%08"PRIX32"\n", tcphdr->sequence);
+	psvDebugScreenSetFgColor(0xFFFFFFFF);
 	psvDebugScreenSetBgColor(0xFF286EAA);
-	printf("TCP acknowledge number = 0x%08X\n", tcphdr->ack_num);
+	printf("TCP acknowledge number = 0x%08"PRIX32"\n", tcphdr->ack_num);
 	psvDebugScreenSetBgColor(0xFFF0F046);
-	psvDebugScreenSetFgColor(COLOR_BLACK);
+	psvDebugScreenSetFgColor(0xFF000000);
 	printf("TCP data flags = 0x%04X\n", tcphdr->data_flags);
 	psvDebugScreenSetBgColor(0x3CF5D2);
 	printf("TCP window size = 0x%04X\n", tcphdr->window_size);
-	psvDebugScreenSetFgColor(COLOR_WHITE);
+	psvDebugScreenSetFgColor(0xFFFFFFFF);
 	psvDebugScreenSetBgColor(0xFFE632F0);
 	printf("TCP checksum = 0x%04X\n", tcphdr->checksum);
 	psvDebugScreenSetBgColor(0xFF3182F5);
@@ -271,7 +278,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 				printf("    ");
 		}
 	
-		psvDebugScreenSetFgColor(COLOR_WHITE);
+		psvDebugScreenSetFgColor(0xFFFFFFFF);
 		if (recv_packet+i >= recv_payload)
 			psvDebugScreenSetBgColor(0xFF00007F);
 		else if (recv_packet+i >= (char*)&recv_icmphdr->un.echo.sequence)
@@ -290,21 +297,21 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 			psvDebugScreenSetBgColor(0xFFE632F0);
 		else if (recv_packet+i >= (char*)&tcphdr->window_size){
 			psvDebugScreenSetBgColor(0x3CF5D2);
-			psvDebugScreenSetFgColor(COLOR_BLACK);
+			psvDebugScreenSetFgColor(0xFF000000);
 		}
 		else if (recv_packet+i >= (char*)&tcphdr->data_flags){
 			psvDebugScreenSetBgColor(0xFFF0F046);
-			psvDebugScreenSetFgColor(COLOR_BLACK);
+			psvDebugScreenSetFgColor(0xFF000000);
 		}
 		else if (recv_packet+i >= (char*)&tcphdr->ack_num)
 			psvDebugScreenSetBgColor(0xFF286EAA);
 		else if (recv_packet+i >= (char*)&tcphdr->sequence){
 			psvDebugScreenSetBgColor(0xFFC8FAFF);
-			psvDebugScreenSetFgColor(COLOR_BLACK);
+			psvDebugScreenSetFgColor(0xFF000000);
 		}
 		else if (recv_packet+i >= (char*)&tcphdr->dst){
 			psvDebugScreenSetBgColor(0xFF0000FF);
-			psvDebugScreenSetFgColor(COLOR_BLACK);
+			psvDebugScreenSetFgColor(0xFF000000);
 		}
 		else if (recv_packet+i >= (char*)&tcphdr->src)
 			psvDebugScreenSetBgColor(0xFF808080);
@@ -318,7 +325,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 
 void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icmphdr, char *payload){
 	uint32_t i;
-	printf("Total ICMP request packet size = %d\n\n", packet_size);
+	printf("Total ICMP request packet size = %"PRIX32"\n\n", packet_size);
 	printf("Destination : %s\n", IP_GOOGLE_DNS);
 	psvDebugScreenSetBgColor(0xFF7F7F00);
 	printf("ICMP echo request = 0x%02X\n", icmphdr->type);
