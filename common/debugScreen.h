@@ -75,6 +75,9 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 			if(!arg[0]) {arg[0] = 39;arg[1] = 49;argc = 1;}//no/0 args == reset BG + FG
 			for(unsigned c = 0; c <= argc; c++) {
 				uint32_t unit = arg[c] % 10, mode = arg[c] / 10, *color = mode&1 ? &colorFg : &colorBg;
+				if (arg[c]==1)colorFg|=0x808080;
+				if (arg[c]==2)colorFg&=0x7F7F7F;
+				if (mode!=3 && mode!=4 && mode!=9 && mode!=10)continue;//skip unsported modes
 				if (unit == 9){ // reset FG or BG
 					*color = mode&1 ? defaultFg : defaultBg;
 				} else if ((unit==8) && (arg[c+1]==5)) { // 8bit : [0-15][16-231][232-256] color map
@@ -87,16 +90,17 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 		}
 	return 0;
 }
-/* avoid linking non-initializer (prx) with sceDisplay/sceMemory */
-#ifndef NO_psvDebugScreenInit
 int psvDebugScreenInit() {
+#ifdef NO_psvDebugScreenInit
+	return 0;/* avoid linking non-initializer (prx) with sceDisplay/sceMemory */
+#else
 	mutex = sceKernelCreateMutex("log_mutex", 0, 0, NULL);
 	SceUID displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
 	sceKernelGetMemBlockBase(displayblock, (void**)&base);
 	SceDisplayFrameBuf frame = { sizeof(frame), base, SCREEN_FB_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 	return sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
-}
 #endif
+}
 
 int psvDebugScreenPuts(const char * _text) {
 	const unsigned char*text = (const unsigned char*)_text;

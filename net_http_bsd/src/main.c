@@ -5,11 +5,15 @@
 #include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/net/net.h>
-#include "debugScreen.h"
 #define printf psvDebugScreenPrintf
+#else
+#define NO_psvDebugScreenInit
 #endif
 
+#include "debugScreen.h"
+
 #include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,14 +33,16 @@ unsigned char readUTF(unsigned char c, int fd){
 	case 8213:return 0x17;
 	case 8216:return 0x60;
 	case 8217:return 0x27;
+	case 8218:return ',';
 	case 8230:return 0x2E;
 	case 8592:return '<';
-	case 8593:return '^';
+	case 8593:return 0xCE;
 	case 8594:return '>';
-	case 8595:return 'v';
+	case 8595:return 0xCD;
 	case 8598:return '\\';
 	case 8599:return '/';
 	case 8601:return '\\';
+	case 8600:return '\\';
 	case 8602:return '/';
 	case 9472:return 0x17;
 	case 9474:return 0x16;
@@ -49,38 +55,81 @@ unsigned char readUTF(unsigned char c, int fd){
 	case 9516:return 0x12;
 	case 9524:return 0x11;
 	case 9532:return 0x15;
-	case 9600:return 0xDF;
-	case 9604:return 0xDC;
+	case 9600:return 0xC0;
+	case 9601:return 0xC0;
+	case 9602:return 0xDC;
+	case 9603:return 0xDC;
+	case 9604:return 0xC2;
+	case 9605:return 0xC2;
+	case 9606:return 0xDB;
+	case 9607:return 0xDB;
+	case 9608:return 0xDB;
 	}
 	return '?';
 }
 
-int main (int argc, char *argv[]){
-	static char net_mem[1*1024*1024];
+int main (__attribute__((unused)) int argc,  __attribute__((unused)) char *argv[]){
+	char* wttr[] = {"wttr.in","/London"};
+	char* rate[] = {"rate.sx","/"};
+	char**url = NULL;// will point to wttr or rate
 
-	#ifdef __vita__
 	psvDebugScreenInit();
 	psvDebugScreenFont.size_w-=1;//narrow character printing
+	printf("Press [L]=%s%s [R]=%s%s\n", wttr[0], wttr[1], rate[0], rate[1]);
+	#ifdef __vita__
+	static char net_mem[1*1024*1024];
 	sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
 	sceNetInit(&(SceNetInitParam){net_mem, sizeof(net_mem)});
 	#endif
 
-	char* host = "wttr.in", *path="/Paris";
-	int pos=0, fd = socket(PF_INET, SOCK_STREAM, 0);
-	connect(fd, (const struct sockaddr *)&((struct sockaddr_in){.sin_family = AF_INET, .sin_port = htons(80), .sin_addr.s_addr = *(long*)(gethostbyname(host)->h_addr)}), sizeof(struct sockaddr_in));
-	
-	char*header[] = {"GET ",path," HTTP/1.1\r\n", "User-Agent: curl/7.52.1\r\n", "Host: ",host,"\r\n", "\r\n", 0};
-	for(int i=0;header[i];i++)write(fd, header[i], strlen(header[i]));
-
-	for(unsigned char c, line[4096];read(fd,&c,sizeof(c))>0 && pos<sizeof(line);pos = (c=='\n')? 0 : (pos + 1)){
-		#ifdef __vita__
-		if (c>>6==3)c = readUTF(c,fd);
-		#endif
-		if (c == '\n') printf("%.*s\n",pos,line);
-		else line[pos] = c;
+	#ifdef __vita__
+	for(SceCtrlData ctrl={}; !url; sceCtrlReadBufferPositive(0,&ctrl,1)){
+		if(ctrl.buttons == SCE_CTRL_LTRIGGER)
+			url=wttr;
+		if(ctrl.buttons == SCE_CTRL_RTRIGGER)
+			url=rate;
 	}
+	#else
+	while(!url){
+		int c = getchar();
+		if(c == 'L' || c == 'l')
+			url = wttr;
+		if(c == 'R' || c == 'r')
+			url = rate;
+	}
+	#endif
 
+	printf("fetching %s%s...\n", url[0], url[1]);
+	int fd = socket(PF_INET, SOCK_STREAM, 0);
+	connect(fd, (const struct sockaddr *)&((struct sockaddr_in){.sin_family = AF_INET, .sin_port = htons(80), .sin_addr.s_addr = *(long*)(gethostbyname(url[0])->h_addr)}), sizeof(struct sockaddr_in));
+	
+	char*header[] = {"GET ",url[1]," HTTP/1.1\r\n", "User-Agent: curl/PSVita\r\n", "Host: ",url[0],"\r\n", "\r\n", 0};
+	for(int i = 0; header[i]; i++)//send all request header to the server
+		write(fd, header[i], strlen(header[i]));
+
+	unsigned pos = 0;
+	unsigned char c, line[4096];
+	while(read(fd,&c,sizeof(c)) > 0 && pos < sizeof(line)) {
+		if (c>>6==3) // if fetched char is a UTF8 
+			c = readUTF(c,fd); // convert it back to ASCII
+		if (c == '\n') { // end of line reached
+			psvDebugScreenPrintf("%.*s\n", pos, line); // printf the received line into the screen
+			pos = 0; // reset the buffer pointer back to 0
+		} else {
+			line[pos] = c;
+			pos++;
+		}
+	}
 	close(fd);
+
+	#ifndef __vita__ // generate a RGB screen dump (if built on PC)
+	//convert the dump into PNG with: convert -depth 8 -size 960x544+0 RGB:screen.data out.png;
+	int fdump = open("screen.data", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	for (unsigned i = 0; i < sizeof(base); i += 4)// for every RGBA bytes pointed by the screen "base" adress
+		write(fdump, base+i, 3);//write the RGB part (3 bytes) into "screen.data"
+	close(fdump);
+	#endif
+
 	#ifdef __vita__
 	sceNetTerm();
 	sceSysmoduleUnloadModule(SCE_SYSMODULE_NET);
