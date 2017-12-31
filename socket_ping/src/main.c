@@ -106,13 +106,6 @@ uint16_t in_cksum(uint16_t *ptr, int32_t nbytes); /* Algorithm from RFC1071 */
 void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr, SceNetIcmpHeader *recv_icmphdr, char *recv_payload);
 void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icmphdr, char *payload);
 
-void psvDebugScreenSetFgColor(uint32_t rgb){
-	printf("\e[38;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
-}
-void psvDebugScreenSetBgColor(uint32_t rgb){
-	printf("\e[48;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
-}
-
 int main (int argc, char *argv[]){
 	int32_t retval; /* return value */
 	int32_t sfd; /* Socket file descriptor */
