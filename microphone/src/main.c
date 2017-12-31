@@ -113,18 +113,18 @@ int main(int argc, char *argv[]){
 			psvDebugScreenCoordX = 56;
 			if (i < average){
 				if (MAX_VU/2 > i)
-					psvDebugScreenSetBgColor(COLOR_GREEN);
+					psvDebugScreenSetBgColor(0xFF00FF00);
 				else if (MAX_VU*3/4 > i)
-					psvDebugScreenSetBgColor(COLOR_YELLOW);
+					psvDebugScreenSetBgColor(0xFF00FFFF);
 				else
-					psvDebugScreenSetBgColor(COLOR_RED);
+					psvDebugScreenSetBgColor(0xFF0000FF);
 
 			}else{
-				psvDebugScreenSetBgColor(COLOR_BLACK);
+				psvDebugScreenSetBgColor(0xFF000000);
 			}
 			printf("   \n");
 		}
-		psvDebugScreenSetBgColor(COLOR_BLACK);
+		psvDebugScreenSetBgColor(0xFF000000);
 
 		sceCtrlPeekBufferPositive(0, &ctrl, 1);
 
