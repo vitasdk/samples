@@ -71,15 +71,15 @@ int main(int argc, char *argv[]){
 	int audioInMax;
 	int sensitivity = 3;
 	int retVal;
-	int originY = psvDebugScreenCoordY;
+	int originY = coordY;
 
 	SceCtrlData ctrl, oldCtrl;
 
 	while (!exit){
 		average = 0;
 		audioInMax = 0;
-		psvDebugScreenCoordY = originY;
-		psvDebugScreenCoordX = 0;
+		coordY = originY;
+		coordX = 0;
 		/* Read audio */
 		retVal = sceAudioInInput(port, (void*)audioIn);
 		if (retVal){
@@ -110,7 +110,7 @@ int main(int argc, char *argv[]){
 		printf("\nYour microphone is %s\n\n", sceAudioInGetStatus(1)?"disabled.": "enabled. ");
 		printf("\nSimple VU meter: (sensitivity = %3d)\n\n\n", sensitivity);		
 		for (i = 0; i < MAX_VU; i++){
-			psvDebugScreenCoordX = 56;
+			coordX = 56;
 			if (i < average){
 				if (MAX_VU/2 > i)
 					psvDebugScreenSetBgColor(0xFF00FF00);
