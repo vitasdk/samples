@@ -6,6 +6,10 @@ script:
     - curl https://api.github.com/repos/vitasdk/autobuilds/releases | grep browser_download_url | grep linux | head -n 1 | cut -d '"' -f 4 | xargs curl -L | tar xj
     - export VITASDK=$PWD/vitasdk
     - export PATH=$VITASDK/bin:$PATH
+    - curl -sL https://github.com/vitasdk/vdpm/raw/master/vdpm -o vdpm
+    - chmod +x vdpm
+    - curl -L https://github.com/vitasdk/vdpm/raw/master/install-all.sh | bash > /dev/null
+    - rm vdpm
     - mkdir build
     - cd build
     - cmake ..
