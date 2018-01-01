@@ -36,6 +36,7 @@ target_link_libraries(${SHORT_NAME}
   SceGxm_stub
   SceCommonDialog_stub
   SceTouch_stub
+  SceHid_stub
   m
 )
 
