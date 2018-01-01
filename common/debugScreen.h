@@ -44,13 +44,6 @@ static void* base; // pointer to frame buffer
 static char base[SCREEN_FB_WIDTH * SCREEN_HEIGHT * 4];
 #endif
 
-void psvDebugScreenSetFgColor(uint32_t rgb){
-	printf("\e[38;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
-}
-void psvDebugScreenSetBgColor(uint32_t rgb){
-	printf("\e[48;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
-}
-
 static size_t psvDebugScreenEscape(const unsigned char *str) {
 	for(unsigned i = 0, argc = 0, arg[32] = {0}; argc < (sizeof(arg)/sizeof(*arg)) && str[i]!='\0'; i++)
 		switch(str[i]) {
@@ -171,6 +164,13 @@ int psvDebugScreenPrintf(const char *format, ...) {
 	va_end(opt);
 
 	return ret;
+}
+
+void psvDebugScreenSetFgColor(uint32_t rgb){
+	psvDebugScreenPrintf("\e[38;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
+}
+void psvDebugScreenSetBgColor(uint32_t rgb){
+	psvDebugScreenPrintf("\e[48;2;%lu;%lu;%lum", (rgb>>16)&0xFF, (rgb>>8)&0xFF, rgb&0xFF);
 }
 #undef F
 #endif
