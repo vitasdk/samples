@@ -31,15 +31,27 @@ make
 
 ## List of samples
 
+* `audio`: Simple audio wave generator.
+* `camera`: Demonstration of camera features.
 * `common`: Common functions for samples.
 * `ctrl`: A minimal controller (button) sample.
 * `debug_print`: A minimal debug print sample.
+* `debugscreen`: Debug text printing sample.
 * `hello_cpp_world`: A minimal hello world sample in C++.
 * `hello_world`: A minimal hello world sample.
+* `ime`: Graphical dialog sample.
+* `microphone`: Demonstration of microphone features.
+* `motion`: Prints accelerometer data.
 * `net_http`: A minimal HTTP download sample.
+* `net_http_bsd`: A minimal HTTP download sample using BSD sockets.
 * `power`: A minimal power sample.
 * `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
+* `prx_loader`: Load/list prx modules.
+* `prx_simple`: Minimal sample prx module.
+* `redrectangle`: Example SDL rendering.
 * `rtc`: A minimal RTC sample.
+* `socket_ping`: ICMP ping using raw sockets.
+* `soloud`: Plays an audio file and Text To Speech.
 * `touch`: A minimal touch sample.
 
 ## Notes on images
