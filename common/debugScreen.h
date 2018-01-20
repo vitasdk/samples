@@ -35,12 +35,17 @@ static uint32_t defaultBg = 0xFF000000, colorBg = 0xFF000000;
 
 #ifdef __vita__
 #include <psp2/display.h>
+#include <psp2/kernel/clib.h>
 #include <psp2/kernel/sysmem.h>
 #include <psp2/kernel/threadmgr.h>
 static void* base; // pointer to frame buffer
+#ifdef PSVDEBUG_USE_LIBC_VSNPRINTF
+#define sceClibVsnprintf vsnprintf
+#endif
 #else
 #define sceKernelLockMutex(m,v,x) m=v
 #define sceKernelUnlockMutex(m,v) m=v
+#define sceClibVsnprintf vsnprintf
 static char base[SCREEN_FB_WIDTH * SCREEN_HEIGHT * 4];
 #endif
 
@@ -90,27 +95,36 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 		}
 	return 0;
 }
+
 int psvDebugScreenInit() {
-#ifdef NO_psvDebugScreenInit
-	return 0;/* avoid linking non-initializer (prx) with sceDisplay/sceMemory */
-#else
+#ifdef __vita__
 	mutex = sceKernelCreateMutex("log_mutex", 0, 0, NULL);
-	SceUID displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
-	sceKernelGetMemBlockBase(displayblock, (void**)&base);
-	SceDisplayFrameBuf frame = { sizeof(frame), base, SCREEN_FB_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-	return sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
+	// First check if the FrameBuffer is already init (by the prx loader)
+	SceDisplayFrameBuf getFrame = { sizeof(getFrame) };
+	sceDisplayGetFrameBuf(&getFrame, SCE_DISPLAY_SETBUF_NEXTFRAME);
+	// If not, init the FrameBuffer ourself
+	if(!(base = getFrame.base)) {
+		SceUID displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, SCREEN_FB_SIZE, NULL);
+		sceKernelGetMemBlockBase(displayblock, (void**)&base);
+		SceDisplayFrameBuf setFrame = { sizeof(setFrame), base, SCREEN_FB_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+		sceDisplaySetFrameBuf(&setFrame, SCE_DISPLAY_SETBUF_NEXTFRAME);
+	}
 #endif
+	return 0;
 }
 
 int psvDebugScreenPuts(const char * _text) {
+	if(!base)psvDebugScreenInit();
 	const unsigned char*text = (const unsigned char*)_text;
 	int bytes_per_glyph = (F.width * F.height) / 8;
 	sceKernelLockMutex(mutex, 1, NULL);
-	int c;
+	int c,k;
 	for (c = 0; text[c] ; c++) {
 		unsigned char t = text[c];
 		if (t == '\t') {
-			coordX += SCREEN_TAB_W - coordX % SCREEN_TAB_W;
+			//__aeabi_i(div)mod unavailable in -nostdlib => modulo manualy
+			for(k = 0;coordX - k*SCREEN_TAB_W >= SCREEN_TAB_W; ++k);
+			coordX += SCREEN_TAB_W - (coordX - k*SCREEN_TAB_W);
 			continue;
 		}
 		if (coordX + F.width > SCREEN_WIDTH) {
@@ -159,7 +173,7 @@ int psvDebugScreenPrintf(const char *format, ...) {
 
 	va_list opt;
 	va_start(opt, format);
-	int ret = vsnprintf(buf, sizeof(buf), format, opt);
+	int ret = sceClibVsnprintf(buf, sizeof(buf), format, opt);
 	psvDebugScreenPuts(buf);
 	va_end(opt);
 
