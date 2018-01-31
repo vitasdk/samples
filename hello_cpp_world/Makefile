@@ -1,5 +1,5 @@
-# Writing Vita Makefiles is now DEPRECATED. All you need is CMakeLists.txt
-# This is provided only for compatibility. Your project does NOT need this file.
+# You should only use Makefile-based build if you know what you're doing.
+# For most vitasdk projects, CMake is a better choice. See CMakeLists.txt for an example.
 
 PHONY := all package clean
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
