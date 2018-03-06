@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 
 	SceDateTime time;
 	sceRtcGetCurrentClock(&time, 13);
-	printf("Phoenix Island Time:%04d/%02d/%02d %02d:%02d:%02d\n",
+	printf("Phoenix Island Time:%04d/%02d/%02d %02d:%02d:%02d:%i\n",
 		sceRtcGetYear(&time),
 		sceRtcGetMonth(&time),
 		sceRtcGetDay(&time),
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 		sceRtcGetMicrosecond(&time));
 
 	sceRtcGetCurrentClockLocalTime(&time);
-	printf("Your Local Time:%04d/%02d/%02d %02d:%02d:%02d Valid:%i\n",
+	printf("Your Local Time:%04d/%02d/%02d %02d:%02d:%02d:%i Valid:%i\n",
 		sceRtcGetYear(&time),
 		sceRtcGetMonth(&time),
 		sceRtcGetDay(&time),
