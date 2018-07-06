@@ -44,6 +44,7 @@ make
 * `motion`: Prints accelerometer data.
 * `net_http`: A minimal HTTP download sample.
 * `net_http_bsd`: A minimal HTTP download sample using BSD sockets.
+* `net_libcurl`: A libcurl download sample.
 * `power`: A minimal power sample.
 * `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
 * `prx_loader`: Load/list prx modules.
