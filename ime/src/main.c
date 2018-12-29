@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdbool.h>
+
 #include <psp2/types.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/message_dialog.h>
@@ -57,36 +58,51 @@ void gxm_swap(){
 }
 void gxm_term(){
 	sceGxmTerminate();
-	/*TODO*/
+
+	for (int i=0; i<DISPLAY_BUFFER_COUNT; ++i)
+		sceKernelFreeMemBlock(dbuf[i].uid);
 }
 
-#define LEN SCE_IME_DIALOG_MAX_TEXT_LENGTH
-
 int main(int argc, const char *argv[]) {
+	uint16_t input[SCE_IME_DIALOG_MAX_TEXT_LENGTH + 1] = {0};
+	SceImeDialogParam param;
+	int shown_dial = 0;
+	bool said_yes = false;
+
 	sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
 	sceCommonDialogSetConfigParam(&(SceCommonDialogConfigParam){});
 
 	gxm_init();
-	
-	int shown_dial = 0;
-	bool said_yes = false;
+
 	while (!said_yes) {
 		//clear current screen buffer
 		memset(dbuf[backBufferIndex].data,0xff000000,DISPLAY_HEIGHT*DISPLAY_STRIDE_IN_PIXELS*4);
 
-		uint16_t input[LEN + 1];
-		if(!shown_dial)
-			shown_dial = sceImeDialogInit(&(SceImeDialogParam){.title=u"say yes!", LEN, u"nah", input}) > 0;
-		
+		if (!shown_dial) {
+			sceImeDialogParamInit(&param);
+
+			param.supportedLanguages = SCE_IME_LANGUAGE_ENGLISH;
+			param.languagesForced = SCE_TRUE;
+			param.type = SCE_IME_DIALOG_TEXTBOX_MODE_DEFAULT;
+			param.option = 0;
+			param.textBoxMode = SCE_IME_DIALOG_TEXTBOX_MODE_DEFAULT;
+			param.title = u"say yes!";
+			param.maxTextLength = SCE_IME_DIALOG_MAX_TEXT_LENGTH;
+			param.initialText = u"nah";
+			param.inputTextBuffer = input;
+
+			shown_dial = sceImeDialogInit(&param) > 0;
+		}
+
 		if (sceImeDialogGetStatus() == SCE_COMMON_DIALOG_STATUS_FINISHED) {
 			SceImeDialogResult result={};
 			sceImeDialogGetResult(&result);
-			uint16_t*last_input = (result.button == SCE_IME_DIALOG_BUTTON_CLOSE) ? u"" : input;
+			uint16_t*last_input = (result.button == SCE_IME_DIALOG_BUTTON_ENTER) ? input:u"";
 			said_yes=!memcmp(last_input,u"yes",4*sizeof(u' '));
 			sceImeDialogTerm();
 			shown_dial = 0;/*< to respawn sceImeDialogInit on next loop */
 		}
-		
+
 		sceCommonDialogUpdate(&(SceCommonDialogUpdateParam){{
 			NULL,dbuf[backBufferIndex].data,0,0,
 			DISPLAY_WIDTH,DISPLAY_HEIGHT,DISPLAY_STRIDE_IN_PIXELS},
