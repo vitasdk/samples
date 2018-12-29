@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdbool.h>
 
 #include <psp2/types.h>
 #include <psp2/kernel/processmgr.h>
@@ -57,15 +58,16 @@ void gxm_swap(){
 }
 void gxm_term(){
 	sceGxmTerminate();
-	sceKernelFreeMemBlock(dbuf[0].uid);
-	sceKernelFreeMemBlock(dbuf[1].uid);
+
+	for (int i=0; i<DISPLAY_BUFFER_COUNT; ++i)
+		sceKernelFreeMemBlock(dbuf[i].uid);
 }
 
 int main(int argc, const char *argv[]) {
 	uint16_t input[SCE_IME_DIALOG_MAX_TEXT_LENGTH + 1] = {0};
 	SceImeDialogParam param;
 	int shown_dial = 0;
-	int said_yes = 0;
+	bool said_yes = false;
 
 	sceAppUtilInit(&(SceAppUtilInitParam){}, &(SceAppUtilBootParam){});
 	sceCommonDialogSetConfigParam(&(SceCommonDialogConfigParam){});
