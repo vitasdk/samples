@@ -24,7 +24,7 @@ target_link_libraries(${PROJECT_NAME}
   SceCtrl_stub
 )
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
-vita_create_vpk(${PROJECT_NAME}.vpk VSDK00012 ${PROJECT_NAME}.self
+vita_create_vpk(${PROJECT_NAME}.vpk VSDK00020 ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
   NAME ${PROJECT_NAME}
 )

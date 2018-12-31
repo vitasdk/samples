@@ -9,7 +9,7 @@ CXX := arm-vita-eabi-g++
 STRIP := arm-vita-eabi-strip
 
 PROJECT_TITLE := Hello World
-PROJECT_TITLEID := VSDK00006
+PROJECT_TITLEID := VSDK00007
 
 PROJECT := vita_sample
 CFLAGS += -Wl,-q -I../common
@@ -35,7 +35,7 @@ $(PROJECT).vpk: eboot.bin param.sfo
 		--add sce_sys/livearea/contents/startup.png=sce_sys/livearea/contents/startup.png \
 		--add sce_sys/livearea/contents/template.xml=sce_sys/livearea/contents/template.xml \
 	$(PROJECT).vpk
-	
+
 eboot.bin: $(PROJECT).velf
 	vita-make-fself $(PROJECT).velf eboot.bin
 
