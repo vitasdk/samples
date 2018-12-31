@@ -8,12 +8,12 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-set(SHORT_NAME mic_sample)
-project(${SHORT_NAME})
+project(mic_sample)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Microphone Sample")
-set(VITA_TITLEID  "VSDK00015")
+set(VITA_TITLEID  "VSDK00009")
+set(VITA_VERSION  "01.00")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -22,18 +22,18 @@ include_directories(
   ../common
 )
 
-add_executable(${SHORT_NAME}
+add_executable(${PROJECT_NAME}
   src/main.c
 )
 
-target_link_libraries(${SHORT_NAME}
+target_link_libraries(${PROJECT_NAME}
   SceDisplay_stub
   SceCtrl_stub
   SceAudioIn_stub
 )
 
-vita_create_self(${SHORT_NAME}.self ${SHORT_NAME})
-vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
+vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
 )

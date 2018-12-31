@@ -2,8 +2,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 ## This includes the Vita toolchain, must go before project definition
-# It is a convenience so you do not have to type 
-# -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake for cmake. It is 
+# It is a convenience so you do not have to type
+# -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake for cmake. It is
 # highly recommended that you include this block for all projects.
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -16,16 +16,16 @@ endif()
 ## Define project parameters here
 # Name of the project
 project(hello_cpp_world)
-# This line adds Vita helper macros, must go after project definition in order 
+# This line adds Vita helper macros, must go after project definition in order
 # to build Vita specific artifacts (self/vpk).
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 ## Configuration options for this app
 # Display name (under bubble in LiveArea)
 set(VITA_APP_NAME "Hello World")
-# Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X = 
+# Unique ID must be exactly 9 characters. Recommended: XXXXYYYYY where X =
 # unique string of developer and Y = a unique number for this app
-set(VITA_TITLEID  "VSDK00005")
+set(VITA_TITLEID  "VSDK00006")
 # Optional version string to show in LiveArea's more info screen
 set(VITA_VERSION  "01.00")
 
@@ -48,21 +48,21 @@ link_directories(
 
 ## Build and link
 # Add all the files needed to compile here
-add_executable(hello_cpp_world
+add_executable(${PROJECT_NAME}
   src/main.cpp
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
-target_link_libraries(hello_cpp_world
-  SceLibKernel_stub # this line is only for demonstration. It's not needed as 
+target_link_libraries(${PROJECT_NAME}
+  SceLibKernel_stub # this line is only for demonstration. It's not needed as
                     # the most common stubs are automatically included.
 )
 
 ## Create Vita files
-vita_create_self(hello_cpp_world.self hello_cpp_world)
-# The FILE directive lets you add additional files to the VPK, the syntax is 
+vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+# The FILE directive lets you add additional files to the VPK, the syntax is
 # FILE src_path dst_path_in_vpk. In this case, we add the LiveArea paths.
-vita_create_vpk(hello_cpp_world.vpk ${VITA_TITLEID} hello_cpp_world.self
+vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
   FILE sce_sys/icon0.png sce_sys/icon0.png
