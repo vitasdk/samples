@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <string.h>
+
 #include <psp2/ctrl.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/power.h>
