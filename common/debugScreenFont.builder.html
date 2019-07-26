@@ -12,15 +12,21 @@
 function toHTML(c_source) {
 	var f=eval(source.value.replace(/(\/\*[\s\S]*?\*\/|"\s"|PsvDebugScreenFont|\(.*?\))/g,''))
 	if((f.width * f.height) % 8)
-		return alert("Font Width*Height not a byte(8) multiple");
+		alert("Font Width*Height not a byte(8) multiple");
 	var w = f.width, h = f.height;
 	var bits = [].concat(...f.glyphs.split('').map(c=>('0000000'+c.charCodeAt(0).toString(2)).slice(-8).split('').map(c=>+c)));
+	var glyphs_in_bits = Math.floor((f.glyphs.length*8) / (w*h))
+	var align = (f.glyphs.length*8) % (w*h)
+	for (; align > 0; align--) bits.pop();
 	var style = 'style="grid-template-columns:'+[...Array(w)].map(c=>"auto").join(' ')+'"';
-	return [...Array((f.glyphs.length*8)/(w*h))].map((c,i)=>'<div class="glyph" oncontextmenu="[...this.children].forEach(i=>i.removeAttribute(\'checked\'));event.preventDefault()" '+style+' title="&#'+(i + f.first)+'; ('+(i + f.first)+')">'+
+	return [...Array(glyphs_in_bits)].map((c,i)=>'<div class="glyph" oncontextmenu="[...this.children].forEach(i=>i.removeAttribute(\'checked\'));event.preventDefault()" '+style+' title="&#'+(i + f.first)+'; ('+(i + f.first)+')">'+
 	       [...Array(w*h)].map((c,j)=>'<input type="checkbox" '+(bits[i*w*h+j]?'checked':'')+'/>').join('')+'</div>').join('')
 }
 function toHeader(checks) {
-	var glyphs = checks.map(i=>i.checked?'1':'0').join('').match(/.{8}/g).map(s=>'\\x'+("0"+parseInt(s,2).toString(16)).slice(-2)).join('');
+	var glyphs_bits = checks.map(i=>i.checked?'1':'0').join('');
+	var align = glyphs_bits.length % 8
+	if (align > 0) glyphs_bits += "0".repeat(8 - align);
+	var glyphs = glyphs_bits.match(/.{8}/g).map(s=>'\\x'+("0"+parseInt(s,2).toString(16).toUpperCase()).slice(-2)).join('');
 	return `PsvDebugScreenFont psvDebugScreenFont = {
 	glyphs:(unsigned char*)"${glyphs}",
 	width :${psvDebugScreenFont.width},

@@ -6,13 +6,16 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #define sceKernelDelayThread(L) 0/*usleep*/
-#define psvDebugScreenInit() setvbuf(stdout,NULL,_IONBF,0);
-#define psvDebugScreenSetFont(...)
-#define NO_psvDebugScreenInit
 #endif
+
 #include "debugScreen.h"
 #define printf  psvDebugScreenPrintf
 #define puts(S) psvDebugScreenPuts(S"\n")
+
+//                        RRGGBB
+#define CUSTOM_BG_BLUE  0x00003F  // "dark" blue
+#define CUSTOM_BG_RED   0x3F0000  // "dark" red
+#define CUSTOM_BG_GREEN 0x003F00  // "dark" green
 
 /* Custom font, used for the font swaping demo */
 PsvDebugScreenFont psvDebugScreenFont_xs = {glyphs:(unsigned char*)
@@ -31,11 +34,42 @@ PsvDebugScreenFont psvDebugScreenFont_xs = {glyphs:(unsigned char*)
 width:4, height:6, first :32, last:127, size_w:5, size_h:8 };
 
 int main(int argc, char *argv[]) {(void)argc;(void)argv;
+	PsvDebugScreenFont *psvDebugScreenFont_default_1x;
+	PsvDebugScreenFont *psvDebugScreenFont_default_2x;
+	PsvDebugScreenFont *psvDebugScreenFont_previous;
+	PsvDebugScreenFont *psvDebugScreenFont_current;
+	unsigned char backup;
+	int oldCoordX, oldCoordY;
+	int i, j;
+	int modes[]={3,9,4,10};
+	int mode;
+	int code1, code2;
+	ColorState colorsCopy;
+	uint32_t color;
+
 	psvDebugScreenInit();
-	colorBg = defaultBg = 0x444444; //if reset, the BG color will be grey
+	// get default font
+	psvDebugScreenFont_previous = psvDebugScreenFont_default_1x = psvDebugScreenGetFont();
+	// create a scaled by 2 version of default font
+	psvDebugScreenFont_default_2x = psvDebugScreenScaleFont2x(psvDebugScreenFont_default_1x);
+	if (!psvDebugScreenFont_default_2x) {
+		// TODO: error message check font data
+		psvDebugScreenFont_default_2x = psvDebugScreenFont_default_1x;
+	} else {
+		// set scaled default font
+		psvDebugScreenFont_current = psvDebugScreenSetFont(psvDebugScreenFont_default_2x);
+		if (psvDebugScreenFont_current != psvDebugScreenFont_default_2x) { // font was not set
+			// TODO: error message check font data
+		}
+	}
+
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE); // if reset, the BG color will be default again (normally black)
 
 	printf("\e[2J");                    /* Code J Clear (2=whole screen)*/
-	printf("Will be cleared\n" "\e[1J");/* Code J Clear (1=up to the begining of the screen)*/
+	printf("Will be cleared\nThis too Left behind" "\e[11D");
+	psvDebugScreenSetBgColor(CUSTOM_BG_RED);
+	printf("\e[1J" "\n");/* Code J Clear (1=up to the beginning of the screen)*/
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
 
 	printf("Welcome " // strings can be split on multiple parts
 	       "to the psvDebug" // they will be join at compilation anyway
@@ -54,11 +88,16 @@ int main(int argc, char *argv[]) {(void)argc;(void)argv;
 	/* Code m: Select Graphic Rendition (SGR), syntax=\e[#;#;...#m */
 	printf("\e[31m"     "A Red text ");            /* 3X = set the foreground color to X */
 	printf("\e[30;42m"  "Black text on Green BG ");/* 4X = set the background color to X */
+	printf("\e[7m"      "inverted");               /* 7 = invert FG/BG color */
+	printf("\e[27m"     "reverted");               /* 27 = disable inversion */
 	printf("\e[39;49m"  "default\n");              /* 39/49 = reset FG/BG color */
-	
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
+
 	printf("\e[97m"     "White+ text ");           /* 9X = set bright foreground color (keep green BG)*/
 	printf("\e[91;106m" "Red+ text on Cyan+ BG "); /* 10X= set bright background color */
-	printf("\e[m"       "default\n");              /* no param = reset FG/BG */
+	printf("\e[7m"      "inverted");
+	printf("\e[m"       "default\n");              /* no param = reset FG/BG/inversion */
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
 
 	printf("---->\n"
 	       "---->");
@@ -67,34 +106,85 @@ int main(int argc, char *argv[]) {(void)argc;(void)argv;
 	printf("\e[1B"   "1Down");      /* Code B: Moves cursor down # lines */
 	printf("\e[18D"  "18Left\n");   /* Code D: Moves cursor back # spaces */
 	printf("\e[s");                 /* Code s: Saves cursor position */
-	printf("\e[3;9H" "Text at 3:9");/* Code H: or Code f : Moves cursor to a line;column */
+	printf("\e[4;9H" "Text at 4:9");/* Code H: or Code f : Moves cursor to a line;column */
 	printf("\e[u"    "I'm back\n"); /* Code u: Return to saved cursor position */
 	// Line clearing demo: print "pingpong" then place the cursor in the middle
-	printf("pingpong" "\e[4D" "\e[0K" "\n");/* Code K: Clear 0=cur to EOL */
-	printf("pingpong" "\e[4D" "\e[1K" "\n");/* Code K: Clear 1=BOL to cur */
-	printf("pingpong" "\e[4D" "\e[2K" "\n");/* Code K: Clear 2=whole line */
-	// Screen clearing demo: print "ping\npong" then place the cursonr back to the first string line
-	printf("ping\npong\n" "\e[1A" "\e[0J");/* Code J: Clear 0=cur to end of screen */
+	printf("\e[37;2;100mpingpong" "\e[4D"); /* "dark" white on "bright" black */
+	psvDebugScreenSetBgColor(CUSTOM_BG_RED);
+	printf("\e[0K" "\n");          /* Code K: Clear 0=cur to EOL */
+	printf("\e[m");                /* no param = reset FG/BG */
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
+	//
+	printf("pingpong" "\e[4D");
+	psvDebugScreenSetBgColor(CUSTOM_BG_GREEN);
+	printf("\e[1K" "\n");/* Code K: Clear 1=BOL to cur */
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
+	//
+	printf("pingpong" "\e[4D");
+	psvDebugScreenSetBgColor(CUSTOM_BG_RED);
+	printf("\e[2K" "\n");/* Code K: Clear 2=whole line */
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
+	// Screen clearing demo: print "ping\npong" then place the cursor back to the first string line
+	printf("pingn\npong" "\e[1A");
+	psvDebugScreenSetBgColor(CUSTOM_BG_GREEN);
+	printf("\e[0J" "\e[1B");/* Code J: Clear 0=cur to end of screen */
+	psvDebugScreenSetBgColor(CUSTOM_BG_BLUE);
 
-	psvDebugScreenFont.size_w -= 2;
+	// Missing glyph demo: shows simple dummy glyph
+	backup  = psvDebugScreenFont_current->last;
+	psvDebugScreenFont_current->last = 0;
+	printf("missing\n");
+	psvDebugScreenFont_current->last = backup;
+
+	// Font manipulation demo
+	psvDebugScreenFont_current->size_w -= 2;  // May lead to incomplete wide glyphs
 	printf("This is a narrow text\n");
-	psvDebugScreenFont.size_w += 2;
+	psvDebugScreenFont_current->size_w += 2;
 
-	PsvDebugScreenFont psvDebugScreenFont_bkp = psvDebugScreenFont; // backup original font
-	psvDebugScreenFont = psvDebugScreenFont_xs; // switch to our font
+	// Font exchange demo
+	psvDebugScreenFont_previous = psvDebugScreenGetFont();; // backup current font
+	psvDebugScreenFont_current = psvDebugScreenSetFont(&psvDebugScreenFont_xs); // switch to our font
+	if (psvDebugScreenFont_current != &psvDebugScreenFont_xs) { // font was not set
+		// TODO: error message check font data
+	}
 	printf("Glyph Table using custom font:\n");
-	for (int c = psvDebugScreenFont.first; c <= psvDebugScreenFont.last ; c++) {
-		if(c%32==0)printf("%02X:", c);
-		printf("%c", ((c>='\n')&&(c<='\r'))?' ':c);
-		if(c%32==31)printf("\n");
+	for (i = psvDebugScreenFont_current->first; i <= psvDebugScreenFont_current->last; i++) {
+		if ((i%32==0)||(i==psvDebugScreenFont_current->first)) printf("%02X:", i);
+		printf("%c", ((i>='\n')&&(i<='\r'))?' ':i);
+		if (i%32==31) printf("\n");
 	}
 
-	psvDebugScreenFont = psvDebugScreenFont_bkp; // restore original font
+	// Pixel exact positioning, e.g. useful when working with different font heights
+	oldCoordX = 0;
+	psvDebugScreenGetCoordsXY(NULL, &oldCoordY);
+	psvDebugScreenPuts("\e[H");
+	psvDebugScreenSetCoordsXY(&oldCoordX, &oldCoordY);
+
+	psvDebugScreenFont_current = psvDebugScreenSetFont(psvDebugScreenFont_previous); // restore previous font
+	if (psvDebugScreenFont_current != psvDebugScreenFont_previous) { // font was not set
+		// TODO: error message check font data
+	}
 	printf("Glyph Table using default font:\n");
-	for(int c = 0; c <= 255 ; c++){
-		if(c%32==0)printf("%02X:", c);
-		printf("%c", ((c>='\n')&&(c<='\r'))?' ':c);
-		if(c%32==31)printf("\n");
+	for (i = psvDebugScreenFont_current->first; i <= psvDebugScreenFont_current->last; i++) {
+		if ((i%32==0)||(i==psvDebugScreenFont_current->first)) printf("%02X:", i);
+		printf("%c", ((i>='\n')&&(i<='\r'))?' ':i);
+		if (i%32==31) printf("\n");
+	}
+
+	// show all colors as hex code
+	for (i = 0; i < (sizeof(modes)/sizeof(*modes)); i++) {
+		mode = modes[i];
+		code1 = mode * 10;
+		code2 = code1 + (mode&1 ? 10 : -10); // black <-> white
+		for (j = 0; j < 8; j++, code1++) {
+			code2 -= code2 % 10;
+			if ((j == 0)||(j == 1)||(j == 4)||(j == 5)) code2 += 7; // color <-> black
+			//
+			printf("\e[%im\e[%im", code1, code2);
+			psvDebugScreenGetColorStateCopy(&colorsCopy);
+			color = mode&1 ? colorsCopy.color_fg : colorsCopy.color_bg;
+			printf(" %i=%06x ", code1, (color & 0x00FFFFFF));
+		}
 	}
 
 	#ifndef __vita__ // You can generate a RGB screen dump when building on PC (for easy testing)
