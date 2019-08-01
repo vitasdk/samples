@@ -37,18 +37,24 @@ typedef struct PsvDebugScreenFont {
 #define SCREEN_WIDTH    (960) // screen resolution x
 #define SCREEN_HEIGHT   (544) // screen resolution y
 
-#ifdef DEBUG_SCREEN_CODE_INCLUDE // needed once inside a C++ project (e.g. main.cpp)
+#ifdef DEBUG_SCREEN_CODE_INCLUDE // not recommended for your own projects, but for sake of backward compatibility
 #include "debugScreen.c"
 #else
-extern int psvDebugScreenInit();
-extern int psvDebugScreenPuts(const char * _text);
-extern int psvDebugScreenPrintf(const char *format, ...);
-extern void psvDebugScreenGetColorStateCopy(ColorState *copy);
-extern void psvDebugScreenGetCoordsXY(int *x, int *y);
-extern void psvDebugScreenSetCoordsXY(int *x, int *y);
-extern PsvDebugScreenFont *psvDebugScreenGetFont(void);
-extern PsvDebugScreenFont *psvDebugScreenSetFont(PsvDebugScreenFont *font);
-extern PsvDebugScreenFont *psvDebugScreenScaleFont2x(PsvDebugScreenFont *source_font);
+#ifdef __cplusplus
+extern "C" {
+#endif
+int psvDebugScreenInit();
+int psvDebugScreenPuts(const char * _text);
+int psvDebugScreenPrintf(const char *format, ...);
+void psvDebugScreenGetColorStateCopy(ColorState *copy);
+void psvDebugScreenGetCoordsXY(int *x, int *y);
+void psvDebugScreenSetCoordsXY(int *x, int *y);
+PsvDebugScreenFont *psvDebugScreenGetFont(void);
+PsvDebugScreenFont *psvDebugScreenSetFont(PsvDebugScreenFont *font);
+PsvDebugScreenFont *psvDebugScreenScaleFont2x(PsvDebugScreenFont *source_font);
+#ifdef __cplusplus
+}
+#endif
 #endif
 
-#endif
+#endif /* DEBUG_SCREEN_H */
