@@ -5,7 +5,6 @@
 #include <psp2/audioout.h>
 #include <psp2/kernel/processmgr.h>
 
-#define DEBUG_SCREEN_CODE_INCLUDE // needed once inside a C++ project
 #include "debugScreen.h"
 
 #include "soloud.h"
