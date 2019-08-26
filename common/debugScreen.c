@@ -118,10 +118,10 @@
 
 static int mutex, coordX, coordY;
 static int savedX[SAVE_STORAGES] = { 0 }, savedY[SAVE_STORAGES] = { 0 };
-static ColorState colors = { false, false, // truecolor flags
+static ColorState colors = { 0, 0, // truecolor flags
                              0, 0, // truecolors
-                             0, 0, 0, 0, false, // ANSI/VTERM/GREYSCALE colors
-                             7, 22, 0, 22, false, // default colors (ANSI/VTERM/GREYSCALE)
+                             0, 0, 0, 0, 0, // ANSI/VTERM/GREYSCALE colors
+                             7, 22, 0, 22, 0, // default colors (ANSI/VTERM/GREYSCALE)
                            };
 
 static PsvDebugScreenFont *psvDebugScreenFontCurrent = &psvDebugScreenFont;
@@ -187,7 +187,7 @@ static uint32_t ANSI_COLORS_BGR[256] = {
 * Reset foreground color to default
 */
 static void psvDebugScreenResetFgColor(void) {
-	colors.fgTrueColorFlag = false;
+	colors.fgTrueColorFlag = 0;
 	colors.fgTrueColor = 0;
 	colors.fgIndex = colors.fgIndexDefault;
 	colors.fgIntensity = colors.fgIntensityDefault;
@@ -197,7 +197,7 @@ static void psvDebugScreenResetFgColor(void) {
 * Reset background color to default
 */
 static void psvDebugScreenResetBgColor(void) {
-	colors.bgTrueColorFlag = false;
+	colors.bgTrueColorFlag = 0;
 	colors.bgTrueColor = 0;
 	colors.bgIndex = colors.bgIndexDefault;
 	colors.bgIntensity = colors.bgIntensityDefault;
@@ -267,7 +267,7 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 	unsigned int i, argc, arg[32] = { 0 };
 	unsigned int c;
 	uint32_t unit, mode;
-	bool *colorTrueColorFlag;
+	int *colorTrueColorFlag;
 	uint32_t *colorTrueColor;
 	unsigned char *colorIndex, *colorIntensity;
 	for (i = 0, argc = 0; (argc < (sizeof(arg)/sizeof(*arg))) && (str[i] != '\0'); i++) {
@@ -342,10 +342,10 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 							continue;
 						// inversion
 						case 7: // enable
-							colors.inversion = true;
+							colors.inversion = 1;
 							continue;
 						case 27: // disable
-							colors.inversion = false;
+							colors.inversion = 0;
 							continue;
 						// set from color map or truecolor
 						case 38: // foreground color
@@ -353,14 +353,14 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 							mode = arg[c] / 10;
 							colorTrueColorFlag = mode&1 ? &colors.fgTrueColorFlag : &colors.bgTrueColorFlag;
 							if (arg[c+1]==5) { // 8-bit: [0-15][16-231][232-255] color map
-								*colorTrueColorFlag = false;
+								*colorTrueColorFlag = 0;
 								colorIndex = mode&1 ? &colors.fgIndex : &colors.bgIndex;
 								*colorIndex = arg[c+2] & 0xFF;
 								colorIntensity = mode&1 ? &colors.fgIntensity : &colors.bgIntensity;
 								*colorIntensity = ((*colorIndex>=8) && (*colorIndex<=15)) ? 1 : 22;
 								c+=2; // extra arguments
 							} else if (arg[c+1]==2) { // 24-bit color space
-								*colorTrueColorFlag = true;
+								*colorTrueColorFlag = 1;
 								colorTrueColor = mode&1 ? &colors.fgTrueColor : &colors.bgTrueColor;
 								*colorTrueColor = FROM_FULL_RGB(arg[c+2], arg[c+3], arg[c+4]);
 								c+=4; // extra arguments
@@ -381,7 +381,7 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 							unit = arg[c] % 10;
 							if (unit>7) continue; // skip unsupported modes
 							colorTrueColorFlag = mode&1 ? &colors.fgTrueColorFlag : &colors.bgTrueColorFlag;
-							*colorTrueColorFlag = false;
+							*colorTrueColorFlag = 0;
 							colorIndex = mode&1 ? &colors.fgIndex : &colors.bgIndex;
 							*colorIndex = unit;
 							colorIntensity = mode&1 ? &colors.fgIntensity : &colors.bgIntensity;
@@ -476,9 +476,9 @@ int psvDebugScreenPuts(const char * _text) {
 		row = 0;
 		// check if glyph is available in font
 		if ((t > (F)->last) || (t < (F)->first)) {
-			drawDummy = true;
+			drawDummy = 1;
 		} else {
-			drawDummy = false;
+			drawDummy = 0;
 			bitmap_offset = (t - (F)->first) * bits_per_glyph;
 			font = &(F)->glyphs[ (bitmap_offset / 8) ];
 			mask = 1 << 7;

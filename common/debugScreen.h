@@ -1,13 +1,11 @@
 #ifndef DEBUG_SCREEN_H
 #define DEBUG_SCREEN_H
 
-#include <stdbool.h> // for bool
-
 #include "debugScreen_custom.h"
 
 typedef struct ColorState {
-	bool fgTrueColorFlag; // flag if truecolors or ANSI/VTERM/GREYSCALE colors are used
-	bool bgTrueColorFlag; // flag if truecolors or ANSI/VTERM/GREYSCALE colors are used
+	int fgTrueColorFlag; // flag if truecolors or ANSI/VTERM/GREYSCALE colors are used
+	int bgTrueColorFlag; // flag if truecolors or ANSI/VTERM/GREYSCALE colors are used
 	// truecolors
 	uint32_t fgTrueColor; // color in RGB (internal BGR)
 	uint32_t bgTrueColor; // color in RGB (internal BGR)
@@ -16,14 +14,14 @@ typedef struct ColorState {
 	unsigned char fgIntensity; // 22=normal, 1=increased ("bright"), 2=decreased ("dark")
 	unsigned char bgIndex; // ANSI/VTERM/GREYSCALE color code (0-255)
 	unsigned char bgIntensity; // 22=normal, 1=increased ("bright")
-	bool inversion; // flag if bg/fg colors are inverted
+	int inversion; // flag if bg/fg colors are inverted
 
 	// default colors (ANSI/VTERM/GREYSCALE)
 	unsigned char fgIndexDefault; // default ANSI/VTERM/GREYSCALE color code
 	unsigned char fgIntensityDefault; // 22=normal, 1=increased, 2=decreased
 	unsigned char bgIndexDefault; // default ANSI/VTERM/GREYSCALE color code
 	unsigned char bgIntensityDefault; // 22=normal, 1=increased
-	bool inversionDefault; // flag if bg/fg colors are inverted
+	int inversionDefault; // flag if bg/fg colors are inverted
 
 	// current colors (e.g. inverted)
 	uint32_t color_fg; // color in RGB (internal BGR)
