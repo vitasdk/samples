@@ -118,11 +118,12 @@
 
 static int mutex, coordX, coordY;
 static int savedX[SAVE_STORAGES] = { 0 }, savedY[SAVE_STORAGES] = { 0 };
-static ColorState colors = { 0, 0, // truecolor flags
-                             0, 0, // truecolors
-                             0, 0, 0, 0, 0, // ANSI/VTERM/GREYSCALE colors
-                             7, 22, 0, 22, 0, // default colors (ANSI/VTERM/GREYSCALE)
-                           };
+static ColorState colors = {
+	0, 0, // truecolor flags
+	0, 0, // truecolors
+	0, 0, 0, 0, 0, // ANSI/VTERM/GREYSCALE colors
+	7, 22, 0, 22, 0, // default colors (ANSI/VTERM/GREYSCALE)
+};
 
 static PsvDebugScreenFont *psvDebugScreenFontCurrent = &psvDebugScreenFont;
 
@@ -258,7 +259,7 @@ static void psvDebugScreenSetColors(void) {
 		}
 	}
 	*color_bg |= 0xFF000000; // opaque
-};
+}
 
 /*
 * Parse CSI sequences
@@ -334,19 +335,23 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 							psvDebugScreenResetBgColor();
 							psvDebugScreenResetInversion();
 							continue;
+							break;
 						// intensity
 						case 1: // increased = "bright" color
 						case 2: // decreased = "dark" color
 						case 22: // standard = "normal" color
 							colors.fgIntensity = arg[c];
 							continue;
+							break;
 						// inversion
 						case 7: // enable
 							colors.inversion = 1;
 							continue;
+							break;
 						case 27: // disable
 							colors.inversion = 0;
 							continue;
+							break;
 						// set from color map or truecolor
 						case 38: // foreground color
 						case 48: // background color
@@ -366,13 +371,16 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 								c+=4; // extra arguments
 							}
 							continue;
+							break;
 						// default color
 						case 39: // foreground color
 							psvDebugScreenResetFgColor();
 							continue;
+							break;
 						case 49: // background color
 							psvDebugScreenResetBgColor();
 							continue;
+							break;
 						// custom color reset
 						default:
 							// ANSI colors (30-37, 40-47, 90-97, 100-107)
@@ -386,6 +394,7 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 							*colorIndex = unit;
 							colorIntensity = mode&1 ? &colors.fgIntensity : &colors.bgIntensity;
 							*colorIntensity = mode&8 ? 1 : 22;
+							break;
 					}
 				}
 				psvDebugScreenSetColors();
