@@ -6,6 +6,7 @@
 #include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/camera.h>
+#include <psp2/kernel/processmgr.h>
 
 #define ARRAYSIZE(x) (sizeof(x)/sizeof(*x))
 #define DISPLAY_WIDTH 640

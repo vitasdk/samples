@@ -18,6 +18,7 @@
 #include <psp2/ctrl.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "debugScreen.h"
 
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]){
 	int port = 0;
 
 	/* If size > grain */
-	/* audio buffer will be filled only up to [grain - 1] */ 
+	/* audio buffer will be filled only up to [grain - 1] */
 	int size = 256;
 	short *audioIn = NULL;
 
@@ -56,10 +57,10 @@ int main(int argc, char *argv[]){
 				SCE_AUDIO_IN_PARAM_FORMAT_S16_MONO);
 
 	printf("Port value 0x%X - buff size %d\n", port, size);
-	
+
 	/* Check for SceAudioInErrorCode enums */
 	if (0 > port){
-		exit = 1;		
+		exit = 1;
 	}
 
 	printf("Audio buff address = 0x%X\n\n", audioIn);
@@ -71,15 +72,14 @@ int main(int argc, char *argv[]){
 	int audioInMax;
 	int sensitivity = 3;
 	int retVal;
-	int originY = coordY;
 
 	SceCtrlData ctrl, oldCtrl;
 
+	printf("\e[s");  // save cursor position
 	while (!exit){
 		average = 0;
 		audioInMax = 0;
-		coordY = originY;
-		coordX = 0;
+		printf("\e[u");  // return to saved cursor position
 		/* Read audio */
 		retVal = sceAudioInInput(port, (void*)audioIn);
 		if (retVal){
@@ -99,18 +99,18 @@ int main(int argc, char *argv[]){
 
 				if (audioInMax < audioIn[i + j])
 					audioInMax = audioIn[i + j];
-			}		
+			}
 			printf("\n");
 		}
-		
+
 		average /= size;
-		average = ((average * sensitivity) * MAX_VU) / audioInMax;	
+		average = ((average * sensitivity) * MAX_VU) / audioInMax;
 		/* Get microphone status */
 		/* Other values than 1 in GetStatus returns 0x80260106 */
 		printf("\nYour microphone is %s\n\n", sceAudioInGetStatus(1)?"disabled.": "enabled. ");
-		printf("\nSimple VU meter: (sensitivity = %3d)\n\n\n", sensitivity);		
+		printf("\nSimple VU meter: (sensitivity = %3d)\n\n\n", sensitivity);
 		for (i = 0; i < MAX_VU; i++){
-			coordX = 56;
+			printf("\e[7G");  // set cursor to column 7 (for 8x8 font)
 			if (i < average){
 				if (MAX_VU/2 > i)
 					psvDebugScreenSetBgColor(0xFF00FF00);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]){
 
 		memcpy(&oldCtrl, &ctrl, sizeof(SceCtrlData));
 
-		sceKernelDelayThread(10000);		
+		sceKernelDelayThread(10000);
 	}
 
 	free(audioIn);

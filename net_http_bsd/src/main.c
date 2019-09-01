@@ -72,9 +72,11 @@ int main (__attribute__((unused)) int argc,  __attribute__((unused)) char *argv[
 	char* wttr[] = {"wttr.in","/London"};
 	char* rate[] = {"rate.sx","/"};
 	char**url = NULL;// will point to wttr or rate
+	PsvDebugScreenFont *psvDebugScreenFont_current;
 
 	psvDebugScreenInit();
-	psvDebugScreenFont.size_w-=1;//narrow character printing
+	psvDebugScreenFont_current = psvDebugScreenGetFont();
+	psvDebugScreenFont_current->size_w-=1;//narrow character printing
 	printf("Press [L]=%s%s [R]=%s%s\n", wttr[0], wttr[1], rate[0], rate[1]);
 	#ifdef __vita__
 	static char net_mem[1*1024*1024];

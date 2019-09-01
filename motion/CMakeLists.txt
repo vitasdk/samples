@@ -24,6 +24,7 @@ include_directories(
 
 add_executable(${PROJECT_NAME}
   src/main.c
+  ../common/debugScreen.c
 )
 
 target_link_libraries(${PROJECT_NAME}
