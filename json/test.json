@@ -1,0 +1,13 @@
+{
+    "string": "Hello JSON!",
+    "integer": -273,
+    "boolean": true,
+    "uinteger": 16050,
+    "double": 12.325,
+    "arr": [15, 12],
+    "object": 
+    {
+        "key1":"value1",
+        "key2": 2
+    }
+}
