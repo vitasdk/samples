@@ -12,21 +12,16 @@ using namespace sce::Json;
 class Allocator : public MemAllocator
 {
 public:
-    Allocator() : s(0) {}
+    Allocator() {}
 
     virtual void* allocateMemory(size_t size, void *unk) override
     {
-        this->s -= size;
-        if(this->s == 0)
-            return nullptr;
         return malloc(size);
     }
     virtual void freeMemory(void *ptr, void *unk) override
     {
         free(ptr);
-    }   
-private:
-    int s;
+    }
 };
 
 #define printf psvDebugScreenPrintf
@@ -60,7 +55,7 @@ int main()
 
     InitParameter params;
     params.allocator = alloc;
-    params.unk_0x8 = 1; // Since we're using Parser::parse(Value&, const char*) we need to set this to something higher than zero.
+    params.bufSize = 100; // Let's set this to something moderate, 100 bytes. Our JSON file is 224 bytes, so that would result in 3 IO calls.
 
     Initializer init = Initializer();
     int ret = init.initialize(&params); // Initialization at last!
