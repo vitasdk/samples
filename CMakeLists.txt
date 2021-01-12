@@ -9,6 +9,7 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 project(sample)
+add_subdirectory(basic_program)
 add_subdirectory(audio)
 add_subdirectory(camera)
 add_subdirectory(ctrl)
