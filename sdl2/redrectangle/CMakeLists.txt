@@ -28,7 +28,6 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   SDL2
-  vita2d
   SceDisplay_stub
   SceCtrl_stub
   SceAudio_stub
