@@ -1,5 +1,3 @@
-#define VITASDK
-
 #include <psp2/sysmodule.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/display.h>
@@ -7,6 +5,7 @@
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
 #include <psp2/net/http.h>
+#include <psp2/libssl.h>
 
 #include <psp2/io/fcntl.h>
 
@@ -16,105 +15,138 @@
 
 #include "debugScreen.h"
 
+#define debugPrintf(...) psvDebugScreenPrintf(__VA_ARGS__); \
+                         printf(__VA_ARGS__)
+
 void netInit() {
-	psvDebugScreenPrintf("Loading module SCE_SYSMODULE_NET\n");
-	sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
-	
-	psvDebugScreenPrintf("Running sceNetInit\n");
+	debugPrintf("Running sceNetInit\n");
 	SceNetInitParam netInitParam;
-	int size = 1*1024*1024;
+	int size = 16*1024;
 	netInitParam.memory = malloc(size);
 	netInitParam.size = size;
 	netInitParam.flags = 0;
-	sceNetInit(&netInitParam);
+	int ret = sceNetInit(&netInitParam);
+	debugPrintf("0x%08X sceNetInit\n", ret);
 
-	psvDebugScreenPrintf("Running sceNetCtlInit\n");
-	sceNetCtlInit();
+	debugPrintf("Running sceNetCtlInit\n");
+	ret = sceNetCtlInit();
+	debugPrintf("0x%08X sceNetCtlInit\n", ret);
 }
 
 void netTerm() {
-	psvDebugScreenPrintf("Running sceNetCtlTerm\n");
+	debugPrintf("Running sceNetCtlTerm\n");
 	sceNetCtlTerm();
 
-	psvDebugScreenPrintf("Running sceNetTerm\n");
+	debugPrintf("Running sceNetTerm\n");
 	sceNetTerm();
+}
 
-	psvDebugScreenPrintf("Unloading module SCE_SYSMODULE_NET\n");
-	sceSysmoduleUnloadModule(SCE_SYSMODULE_NET);
+void httpLoad() {
+	debugPrintf("Loading module SCE_SYSMODULE_HTTPS\n");
+	int ret = sceSysmoduleLoadModule(SCE_SYSMODULE_HTTPS);
+	debugPrintf("0x%08X sceSysmoduleLoadModule\n", ret);
 }
 
 void httpInit() {
-	psvDebugScreenPrintf("Loading module SCE_SYSMODULE_HTTP\n");
-	sceSysmoduleLoadModule(SCE_SYSMODULE_HTTP);
-
-	psvDebugScreenPrintf("Running sceHttpInit\n");
-	sceHttpInit(1*1024*1024);
+	debugPrintf("Running sceHttpInit\n");
+	int ret = sceHttpInit(64*1024);
+	debugPrintf("0x%08X sceHttpInit\n", ret);
 }
 
-void httpTerm() {
-	psvDebugScreenPrintf("Running sceHttpTerm\n");
-	sceHttpTerm();
-
-	psvDebugScreenPrintf("Unloading module SCE_SYSMODULE_HTTP\n");
-	sceSysmoduleUnloadModule(SCE_SYSMODULE_HTTP);
+void sslInit() {
+	debugPrintf("Running sceSslInit\n");
+	int ret = sceSslInit(512*1024);
+	debugPrintf("0x%08X sceSslInit\n", ret);
 }
+
+void sslTerm() {
+	debugPrintf("Running sceSslEnd\n");
+	sceSslEnd();
+}
+
 
 void download(const char *url, const char *dest) {
-	psvDebugScreenPrintf("\n\nDownloading %s to %s\n", url, dest);
+	SceInt32 result = 0;
+	SceULong64 contentLength;
+	SceInt32 statusCode;
+
+	debugPrintf("\n\nDownloading %s to %s\n", url, dest);
 
 	// Create template with user agend "PS Vita Sample App"
-	int tpl = sceHttpCreateTemplate("PS Vita Sample App", 1, 1);
-	psvDebugScreenPrintf("0x%08X sceHttpCreateTemplate\n", tpl);
+	int tpl = sceHttpCreateTemplate("PS Vita Sample App", SCE_HTTP_VERSION_1_1, 1);
+	debugPrintf("0x%08X sceHttpCreateTemplate\n", tpl);
 
 	// set url on the template
 	int conn = sceHttpCreateConnectionWithURL(tpl, url, 0);
-	psvDebugScreenPrintf("0x%08X sceHttpCreateConnectionWithURL\n", conn);
+	debugPrintf("0x%08X sceHttpCreateConnectionWithURL\n", conn);
 
 	// create the request with the correct method
 	int request = sceHttpCreateRequestWithURL(conn, SCE_HTTP_METHOD_GET, url, 0);
-	psvDebugScreenPrintf("0x%08X sceHttpCreateRequestWithURL\n", request);
+	debugPrintf("0x%08X sceHttpCreateRequestWithURL\n", request);
+
+	// Add request header. Last param is 
+	result = sceHttpAddRequestHeader(request, "X-Test-Header", "some-value", SCE_HTTP_HEADER_OVERWRITE);
+	debugPrintf("0x%08X sceHttpAddRequestHeader\n", result);
 
 	// send the actual request. Second parameter would be POST data, third would be length of it.
-	int handle = sceHttpSendRequest(request, NULL, 0);
-	psvDebugScreenPrintf("0x%08X sceHttpSendRequest\n", handle);
+	result = sceHttpSendRequest(request, NULL, 0);
+	debugPrintf("0x%08X sceHttpSendRequest\n", result);
 
-	// open destination file
-	int fh = sceIoOpen(dest, SCE_O_WRONLY | SCE_O_CREAT, 0777);
-	psvDebugScreenPrintf("0x%08X sceIoOpen\n", fh);
+	// check result and status code
+	if (result == 0) {
+		result = sceHttpGetStatusCode(request, &statusCode);
+		debugPrintf("response code = %d\n", statusCode);
 
-	// create buffer and counter for read bytes.
-	unsigned char data[16*1024];
-	int read = 0;
+		if(statusCode == 200) {
+			// this can return SCE_HTTP_ERROR_CHUNK_ENC for chunked encoding, or no Content-Length at all, which is totally valid
+			result = sceHttpGetResponseContentLength(request, &contentLength);
+			if(result < 0) {
+				debugPrintf("sceHttpGetContentLength() error: 0x%08X\n", result);
+			} else {
+				debugPrintf("Content-Length = %lld\n", contentLength);
+			}
 
-	// read data until finished
-	while ((read = sceHttpReadData(request, &data, sizeof(data))) > 0) {
-		psvDebugScreenPrintf("read %d bytes\n", read);
+			// open destination file
+			int fh = sceIoOpen(dest, SCE_O_WRONLY | SCE_O_CREAT, 0777);
+			debugPrintf("0x%08X sceIoOpen\n", fh);
 
-		// writing the count of read bytes from the data buffer to the file
-		int write = sceIoWrite(fh, data, read);
-		psvDebugScreenPrintf("wrote %d bytes\n", write);
+			// create buffer and counter for read bytes.
+			unsigned char data[16*1024];
+			int read = 0;
+
+			// read data until finished
+			while ((read = sceHttpReadData(request, &data, sizeof(data))) > 0) {
+				debugPrintf("read %d bytes\n", read);
+
+				// writing the count of read bytes from the data buffer to the file
+				int write = sceIoWrite(fh, data, read);
+				debugPrintf("wrote %d bytes\n", write);
+			}
+
+			// close file
+			sceIoClose(fh);
+			debugPrintf("sceIoClose\n");
+		}
 	}
 
-	// close file
-	sceIoClose(fh);
-	psvDebugScreenPrintf("sceIoClose\n");
-
-	psvDebugScreenPrintf("\n\n");
+	debugPrintf("\n\n");
 }
 
 int main(int argc, char *argv[]) {
 	psvDebugScreenInit();
-	psvDebugScreenPrintf("HTTP Sample v.1.0 by barooney\n\n");
+	psvDebugScreenPrintf("HTTP Sample v.1.1 by barooney\n\n");
 
+	httpLoad();
 	netInit();
+	sslInit();
 	httpInit();
 
-	download("http://barooney.com/", "ux0:data/index.html");
+	download("https://google.com/", "ux0:data/index.html");
 
-	httpTerm();
+	sslTerm();
 	netTerm();
 
-	psvDebugScreenPrintf("This app will close in 10 seconds!\n");
+	debugPrintf("This app will close in 10 seconds!\n");
 	sceKernelDelayThread(10*1000*1000);
 
 	sceKernelExitProcess(0);

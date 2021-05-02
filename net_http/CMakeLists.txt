@@ -33,6 +33,7 @@ target_link_libraries(${PROJECT_NAME}
   SceNet_stub
   SceNetCtl_stub
   SceHttp_stub
+  SceSsl_stub
 )
 
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
