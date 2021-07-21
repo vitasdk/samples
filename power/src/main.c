@@ -76,7 +76,9 @@ int main(int argc, char *argv[])
 	printf("Battery life time: (%02dh%02dm)\n", batteryLifeTime/60, batteryLifeTime-(batteryLifeTime/60*60));
 	printf("Clock frequency of the ARM: %d mHz\n", scePowerGetArmClockFrequency());
 	printf("Clock frequency of the BUS: %d mHz\n", scePowerGetBusClockFrequency());
-	printf("Clock frequency of the GPU: %d mHz\n", scePowerGetGpuClockFrequency());
+	SceInt32 corefreq = 0, mpfreq = 0;
+	scePowerGetGpuClockFrequency(&corefreq, &mpfreq);
+	printf("Clock frequency of the GPU: core %d mHz, mp %d mHz\n", corefreq, mpfreq);
 
 	printf("\n\nExperiment by sleeping vita and turning back on. Press start to exit. \n");
 	setupCallbacks();
