@@ -1,0 +1,25 @@
+sample_user_prx:
+  # Attributes should be 0 on user module.
+  attributes: 0
+  # The image module is do not have the start/stop/etc entry. Just module only for data.
+  imagemodule: false
+  # The version is basically 1.1 and does not need to be changed.
+  version:
+    major: 1
+    minor: 1
+  # The module entry list.
+  main:
+    start: module_start
+  # The module export list.
+  modules:
+    program_library:
+      syscall: false
+      version: 2
+      functions:
+        - program_panic
+    program_param:
+      syscall: false
+      version: 5
+      nid: 0x745F70D8
+      variables:
+        - sys_clock: 0xEA57A29B
