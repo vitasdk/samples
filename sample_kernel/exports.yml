@@ -1,0 +1,19 @@
+sample_kernel:
+  attributes: 7
+  version:
+    major: 1
+    minor: 1
+  main:
+    start: module_start
+  modules:
+    programLibraryForDriver:
+      syscall: false
+      version: 1
+      functions:
+        - sample_kern_get_module_start_time
+  modules:
+    programLibraryForUser:
+      syscall: true
+      version: 1
+      functions:
+        - sample_kern_get_module_start_time_for_user
