@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -10,6 +10,8 @@ endif()
 
 project(redrectangle)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
+
+find_package(SDL2 REQUIRED)
 
 set(VITA_APP_NAME "Red Rectangle")
 set(VITA_TITLEID  "VSDK00017")
@@ -27,18 +29,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  SDL2
-  SceDisplay_stub
-  SceCtrl_stub
-  SceAudio_stub
-  SceSysmodule_stub
-  SceGxm_stub
-  SceCommonDialog_stub
-  SceAppMgr_stub
-  SceTouch_stub
-  SceHid_stub
-  SceMotion_stub
-  m
+  SDL2::SDL2
 )
 
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
