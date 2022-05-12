@@ -4,6 +4,10 @@
 
 #include <cstdio>
 
+#include <debugScreen.h>
+
+#define printf psvDebugScreenPrintf
+
 int main(int argc, char *argv[]) {
 	std::stringstream output;
 	std::vector<std::string> hello = { "Hello" };
@@ -15,7 +19,9 @@ int main(int argc, char *argv[]) {
 		output << s;
 	}
 	output << std::endl;
+	psvDebugScreenInit();
 	printf("%s\n", output.str().c_str());
+	sceKernelDelayThread(3*1000000); // Wait for 3 seconds
 	sceKernelExitProcess(0);
     return 0;
 }
