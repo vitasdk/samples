@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -9,8 +9,14 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
+
 project(prx_loader)
-add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.c)
+
+add_executable(${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.c
+    ../common/debugScreen.c
+)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wall")
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(../common)
@@ -22,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
   SceIofilemgr_stub
   SceKernelThreadMgr_stub
   SceCtrl_stub
+  ${CMAKE_CURRENT_BINARY_DIR}/../prx_simple/libprx_simple_stub.a
 )
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
 vita_create_vpk(${PROJECT_NAME}.vpk VSDK00020 ${PROJECT_NAME}.self
