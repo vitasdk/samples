@@ -232,7 +232,5 @@ int main(int argc, char **argp){
 	sceSysmoduleUnloadModuleInternal(SCE_SYSMODULE_INTERNAL_PAF);
 
 	sceKernelDelayThread(40000);
-	sceKernelExitProcess(0);
-
 	return 0;
 }

@@ -44,7 +44,7 @@ int main(void){
 			ctrl_press = ctrl_peek;
 			sceCtrlPeekBufferPositive(0, &ctrl_peek, 1);
 			ctrl_press.buttons = ctrl_peek.buttons & ~ctrl_press.buttons;
-			
+
 			sceCameraSetBrightness(cur_cam, ctrl_press.rx);
 			sceCameraSetContrast(cur_cam, ctrl_press.ry-100);
 			sceCameraSetEV(cur_cam, (ctrl_press.lx-128)/7);//-20...20
@@ -87,6 +87,5 @@ int main(void){
 
 	}while(!(ctrl_press.buttons & SCE_CTRL_START));
 	sceKernelFreeMemBlock(memblock);
-	sceKernelExitProcess(0);
 	return 0;
 }

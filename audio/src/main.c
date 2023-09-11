@@ -54,7 +54,7 @@ int main(void) {
 			gen=gen_nul;
 		if(ctrl_press.buttons & (SCE_CTRL_CROSS|SCE_CTRL_TRIANGLE|SCE_CTRL_SQUARE|SCE_CTRL_CIRCLE))
 			wave_set(wave_buf,size,gen);
-			
+
 		if(ctrl_press.buttons == SCE_CTRL_RIGHT)
 			freq = MIN(countof(freqs)-1, freq+1);
 		if(ctrl_press.buttons == SCE_CTRL_LEFT)
@@ -81,6 +81,5 @@ int main(void) {
 	}while(ctrl_press.buttons != SCE_CTRL_START);
 
 	sceAudioOutReleasePort(port);
-	sceKernelExitProcess(0);
 	return 0;
 }

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 	sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, 1);
 	sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
 	sceTouchEnableTouchForce(SCE_TOUCH_PORT_BACK);
-	
+
 	SceTouchData touch_old[SCE_TOUCH_PORT_MAX_NUM];
 	SceTouchData touch[SCE_TOUCH_PORT_MAX_NUM];
 	while (1) {
@@ -42,6 +42,5 @@ int main(int argc, char *argv[]) {
 		  && (touch_old[SCE_TOUCH_PORT_FRONT].report[0].y < 1000))
 		break;
 	}
-	sceKernelExitProcess(0);
 	return 0;
 }

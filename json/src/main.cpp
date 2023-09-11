@@ -40,7 +40,7 @@ char* DisplayTestFile()
 
     printf("Input Json Data: \n%s\n", buf);
 
-    return buf;           
+    return buf;
 }
 
 int main()
@@ -62,7 +62,7 @@ int main()
 
     char* buf = DisplayTestFile();
 
-    Value val = Value(); // Creating our Root value. 
+    Value val = Value(); // Creating our Root value.
     Parser::parse(val, "app0:test.json"); // Parse test.json into val.
 
     printf("\nIterating over parsed data\n\n");
@@ -115,7 +115,7 @@ int main()
                     }
                 }
                 break;
-            case ValueType::ObjectValue: 
+            case ValueType::ObjectValue:
                 {
                     printf("Child %d is an Object. Iterating though values.\n\n", i);
                     const Object& obj = v.getObject();
@@ -151,9 +151,9 @@ int main()
     }
 
     String serialized = String();
-    val.serialize(serialized); // Serialize val into parsed. 
+    val.serialize(serialized); // Serialize val into parsed.
     printf("\nSerialized Output Data: \n%s\n", serialized.c_str()); // Display parsed.
-    
+
     int same = strcmp(serialized.c_str(), buf); // Compare the input data to the serialized data.
     if(same < 0 || same > 0)
         printf("The serialized output is not the same as the input.\n");
@@ -178,7 +178,5 @@ int main()
             break;
     }
 
-    sceKernelExitProcess(0);
-    
     return 0;
 }

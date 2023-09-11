@@ -1,7 +1,7 @@
-/* 
+/*
 	ICMP with Raw Sockets
 	Use this sample to ping Google DNS (8.8.8.8) from your PSVita
-	
+
 	Enjoy,
 		- pyroesp
 */
@@ -29,7 +29,7 @@
 #define IP_GOOGLE_DNS "8.8.8.8"
 
 /* Arbitrary payload size for ICMP */
-#define ICMP_MIN_PAYLOAD (32) 
+#define ICMP_MIN_PAYLOAD (32)
 
 
 /* TCP Flag bits struct */
@@ -81,9 +81,9 @@ typedef struct{
 	IcmpPacket icmp;
 }TcpPacket;
 
-/* 
+/*
 	Union needed to correctly access the network packets
-	- IcmpPacket for the structure of the packet 
+	- IcmpPacket for the structure of the packet
 	- uin16_t[] for the checksum
 	- char[] for the sendto and recvfrom functions
 */
@@ -132,28 +132,28 @@ int main (int argc, char *argv[]){
 	/* Change IP string to IP uint */
 	printf("Converting IP address.\n");
 	sceNetInetPton(SCE_NET_AF_INET, IP_GOOGLE_DNS, (void*)&dst_addr);
-	
+
 	/* Create raw socket type with icmp net protocol */
 	sfd = sceNetSocket("ping_test", SCE_NET_AF_INET, SCE_NET_SOCK_RAW, SCE_NET_IPPROTO_ICMP);
 	if (sfd < 0)
 		goto exit;
 	printf("Raw socket created.\n");
-	
+
 	/* Allow socket to send datagrams to broadcast addresses */
-	retval = sceNetSetsockopt(sfd, SCE_NET_SOL_SOCKET, SCE_NET_SO_BROADCAST, (const void*)&on, sizeof(on)); 
+	retval = sceNetSetsockopt(sfd, SCE_NET_SOL_SOCKET, SCE_NET_SO_BROADCAST, (const void*)&on, sizeof(on));
 	if (retval == -1)
 		goto exit;
 	printf("Allow socket to broadcast.\n");
-	
+
 	icmp.icmp_struct.hdr.type = SCE_NET_ICMP_TYPE_ECHO_REQUEST; /* set icmp type to echo request */
 	icmp.icmp_struct.hdr.code = SCE_NET_ICMP_CODE_DEST_UNREACH_NET_UNREACH;
 	icmp.icmp_struct.hdr.un.echo.id = 0x1; /* arbitrary id */
 	icmp.icmp_struct.hdr.un.echo.sequence = 0x1234; /* arbitrary sequence */
-	
+
 	/* fill payload with random text, this will get sent back */
 	strncpy(icmp.icmp_struct.payload, "Random Payload in ping", ICMP_MIN_PAYLOAD); /* NB: strncpy fills the remainder of the buffer with zeroes */
 	icmp.icmp_struct.hdr.checksum = in_cksum(icmp.icmp_u16buff, sizeof(IcmpPacket)); /* compute checksum */
-	
+
 	serv_addr.sin_family = SCE_NET_AF_INET; /* set packet to IPv4 */
 	serv_addr.sin_addr = dst_addr; /* set destination address */
 	memset(&serv_addr.sin_zero, 0, sizeof(serv_addr.sin_zero)); /* fill sin_zero with zeroes */
@@ -162,11 +162,11 @@ int main (int argc, char *argv[]){
 	sent_data = sceNetSendto(sfd, icmp.icmp_packet, sizeof(IcmpPacket), 0, (SceNetSockaddr*)&serv_addr, sizeof(SceNetSockaddr));
 	if (sent_data < 1)
 		goto exit; /* send failed */
-	
+
 	printf("Data sent:\n");
 	printf("----------\n\n");
 	displaySentPacket(icmp.icmp_packet, sizeof(IcmpPacket), &icmp.icmp_struct.hdr, icmp.icmp_struct.payload); /* Display colored data */
-	
+
 	/* Receive data */
 	SceNetSockaddr from_addr;
 	uint32_t from_len = sizeof(from_addr);
@@ -175,11 +175,11 @@ int main (int argc, char *argv[]){
 	received_data = sceNetRecvfrom(sfd, tcp.tcp_packet, sizeof(TcpPacket), SCE_NET_MSG_WAITALL, &from_addr, (unsigned int*)&from_len);
 	if (received_data < 1)
 		goto exit;
-	
+
 	printf("Data received:\n");
 	printf("--------------\n\n");
 	displayRecvPacket(tcp.tcp_packet, sizeof(TcpPacket), &tcp.tcp_struct.hdr, &tcp.tcp_struct.icmp.hdr, tcp.tcp_struct.icmp.payload); /* display colored data */
-	
+
 	/* Select to exit */
 	printf("\n\n\n\n\n\n                Press select to exit.\n");
 	SceCtrlData ctrl;
@@ -190,13 +190,12 @@ int main (int argc, char *argv[]){
 
 		sceKernelDelayThread(100*1000);
 	}
-	
+
 	sceNetSocketClose(sfd); /* Close socket */
 exit:
 	sceNetTerm(); /* Close net */
 	sceSysmoduleUnloadModule(SCE_SYSMODULE_NET); /* Unload net module */
-	sceKernelExitProcess(0); /* Exit */
-	return 0;
+	return 0; /* Exit */
 }
 
 
@@ -220,7 +219,7 @@ uint16_t in_cksum(uint16_t *ptr, int32_t nbytes){
 void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr, SceNetIcmpHeader *recv_icmphdr, char *recv_payload){
 	uint32_t i;
 	printf("Total Reply packet size = %"PRIu32"\n\n", received_data);
-	
+
 	printf("TCP Header:\n");
 	printf("-----------\n");
 	psvDebugScreenSetBgColor(0xFF808080);
@@ -259,7 +258,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 	psvDebugScreenSetBgColor(0xFF00007F);
 	printf("Payload : %s\n\n", recv_payload);
 	psvDebugScreenSetBgColor(0xFF000000);
-	
+
 	printf("Raw TCP dump:\n");
 	printf("-------------\n");
 	for (i = 0; i < received_data; i++){
@@ -270,7 +269,7 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 			else if (i % 8 == 0)
 				printf("    ");
 		}
-	
+
 		psvDebugScreenSetFgColor(0xFFFFFFFF);
 		if (recv_packet+i >= recv_payload)
 			psvDebugScreenSetBgColor(0xFF00007F);
@@ -310,9 +309,9 @@ void displayRecvPacket(char *recv_packet, uint32_t received_data, TcpHdr *tcphdr
 			psvDebugScreenSetBgColor(0xFF808080);
 		else
 			psvDebugScreenSetBgColor(0xFF000000);
-		
+
 		printf("%02X ", recv_packet[i]);
-	}		
+	}
 	psvDebugScreenSetBgColor(0xFF000000);
 }
 
@@ -343,7 +342,7 @@ void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icm
 			else if (i % 8 == 0)
 				printf("    ");
 		}
-		
+
 		if (packet+i >= payload)
 			psvDebugScreenSetBgColor(0xFF00007F);
 		else if (packet+i >= (char*)&icmphdr->un.echo.sequence)
@@ -358,9 +357,9 @@ void displaySentPacket(char* packet, uint32_t packet_size, SceNetIcmpHeader *icm
 			psvDebugScreenSetBgColor(0xFF7F7F00);
 		else
 			psvDebugScreenSetBgColor(0xFF000000);
-		
+
 		printf("%02X ", packet[i]);
 	}
-	
+
 	psvDebugScreenSetBgColor(0xFF000000);
 }

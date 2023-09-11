@@ -10,7 +10,7 @@
 
 int main(){
 	psvDebugScreenInit();
-	
+
 	SceCtrlData ctrl;
 	float threshold;
 	bool is_sampling=false;
@@ -20,7 +20,7 @@ int main(){
 		if(ctrl.buttons & SCE_CTRL_START)
 			break;
 		printf("\e[H");/*reset the cursor position to 0,0*/
-		
+
 		printf("Sampling:%3s (X:ON, O:OFF)\n",is_sampling?"ON":"OFF");
 		if((ctrl.buttons & SCE_CTRL_CROSS) && !is_sampling)
 			is_sampling=(sceMotionStartSampling()==0);
@@ -50,7 +50,7 @@ int main(){
 		/* no need to further if we are not sampling */
 		if(!is_sampling)
 			continue;
-			
+
 		printf("Magnetometer:%3s (L:ON, R:OFF)\n",sceMotionGetMagnetometerState()?"ON":"OFF");
 		if(ctrl.buttons & SCE_CTRL_LTRIGGER)
 			sceMotionMagnetometerOn();
@@ -75,9 +75,9 @@ int main(){
 		printf("NedMatrix.Y  <x:%+1.3f y:%+1.3f z:%+1.3f w:%+1.3f>\n",state.nedMatrix.y.x, state.nedMatrix.y.y, state.nedMatrix.y.z, state.nedMatrix.y.w);
 		printf("NedMatrix.Z  <x:%+1.3f y:%+1.3f z:%+1.3f w:%+1.3f>\n",state.nedMatrix.z.x, state.nedMatrix.z.y, state.nedMatrix.z.z, state.nedMatrix.z.w);
 		printf("NedMatrix.W  <x:%+1.3f y:%+1.3f z:%+1.3f w:%+1.3f>\n",state.nedMatrix.w.x, state.nedMatrix.w.y, state.nedMatrix.w.z, state.nedMatrix.w.w);
-		
+
 		printf("\n");
-		
+
 		SceMotionSensorState sensor;
 		sceMotionGetSensorState(&sensor, 1);
 		printf("SensorCounter:%i                \n",sensor.counter);
@@ -86,9 +86,8 @@ int main(){
 		SceFVector3 basicOrientation;
 		sceMotionGetBasicOrientation(&basicOrientation);
 		printf("basicOrient. <x:%+1.3f y:%+1.3f z:%+1.3f>   \n",basicOrientation.x, basicOrientation.y, basicOrientation.z);
-		
+
 		/*		sceMotionRotateYaw(float radians);*/
 	}
-	sceKernelExitProcess(0);
 	return 0;
 }
