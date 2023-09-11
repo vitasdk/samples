@@ -10,8 +10,7 @@
 int main(int argc, char *argv[]) {
 	psvDebugScreenInit();
 	printf("Hello, world!\n");
-	
+
 	sceKernelDelayThread(3*1000000); // Wait for 3 seconds
-	sceKernelExitProcess(0);
 	return 0;
 }

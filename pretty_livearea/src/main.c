@@ -3,6 +3,5 @@
 
 int main(int argc, char *argv[]) {
 	printf("Hello, pretty world!\n");
-	sceKernelExitProcess(0);
 	return 0;
 }

@@ -145,6 +145,5 @@ int main(int argc, char *argv[]){
 
 	free(audioIn);
 	sceAudioInReleasePort(port);
-	sceKernelExitProcess(0);
 	return 0;
 }

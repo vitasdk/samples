@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	printf("Tick Resolution = %i\n", sceRtcGetTickResolution());
 
 	SceRtcTick current, network, utc, local;
-	
+
 	printf("     Current %s:%llu\n", sceRtcGetCurrentTick       (&current      )?"FAIL":"", current.tick);
 	printf("     Network %s:%llu\n", sceRtcGetCurrentNetworkTick(&network      )?"FAIL":"", network.tick);
 	printf("     Loc2UTC %s:%llu\n", sceRtcConvertLocalTimeToUtc(&current, &utc)?"FAIL":"", utc.tick);
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	printf("     Loc %c UTC\n","<=>"[sceRtcCompareTick(&current, &utc)+1]);
 	printf("     UTC %c Loc\n","<=>"[sceRtcCompareTick(&utc, &current)+1]);
 	printf("     UTC %c UTC\n","<=>"[sceRtcCompareTick(&utc, &utc    )+1]);
-	
+
 	SceRtcTick add1000, us1000, sec120, min120, hour48, days32, week64, month13, year1000;
 	printf("      T+1000 %s:%llu\n", sceRtcTickAddTicks       (&add1000, &current, 1000)?"FAIL":"", add1000.tick);
 	printf("     Us+1000 %s:%llu\n", sceRtcTickAddMicroseconds(&us1000,  &current, 1000)?"FAIL":"", us1000.tick);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 	printf("RFC3339 + 2  %s:%s\n", sceRtcFormatRFC3339         (rfc3339_12, &utc, -120)?"FAIL":"", rfc3339_12);
 	printf("RFC2822local %s:%s\n", sceRtcFormatRFC2822LocalTime(rfc2822_loc,&utc      )?"FAIL":"", rfc2822_loc);
 	printf("RFC2822 - 2  %s:%s\n", sceRtcFormatRFC2822         (rfc2822_12, &utc, +120)?"FAIL":"", rfc2822_12);
-	
+
 	const char*rfc_ex1 = "2002-10-02T10:00:00-05:00";
 	const char*rfc_ex2 = "2002-10-02T15:00:00Z";
 	const char*rfc_ex3 = "2002-10-02T15:00:00.05Z";
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 	printf("datetime_2   %s:%-26s->%llu\n",sceRtcParseDateTime(&parsedDate_ex2, datetime_ex2)?"FAIL":"", datetime_ex2, parsedDate_ex2);
 	printf("datetime_3   %s:%-26s->%llu\n",sceRtcParseDateTime(&parsedDate_ex3, datetime_ex3)?"FAIL":"", datetime_ex3, parsedDate_ex3);
 
-	/* TODO 
+	/* TODO
 	sceRtcSetTime_t(&time, time_t iTime);
 	sceRtcSetTime64_t(&time, SceUInt64 ullTime);
 	sceRtcGetTime_t(const &time, time_t *piTime);
@@ -100,6 +100,5 @@ int main(int argc, char *argv[]) {
 		sceKernelDelayThread(1000*1000);
 	}
 
-	sceKernelExitProcess(0);
 	return 0;
 }

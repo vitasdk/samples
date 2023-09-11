@@ -19,7 +19,7 @@
 void netInit() {
 	psvDebugScreenPrintf("Loading module SCE_SYSMODULE_NET\n");
 	sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
-	
+
 	psvDebugScreenPrintf("Running sceNetInit\n");
 	SceNetInitParam netInitParam;
 	int size = 1*1024*1024;
@@ -117,6 +117,5 @@ int main(int argc, char *argv[]) {
 	psvDebugScreenPrintf("This app will close in 10 seconds!\n");
 	sceKernelDelayThread(10*1000*1000);
 
-	sceKernelExitProcess(0);
 	return 0;
 }

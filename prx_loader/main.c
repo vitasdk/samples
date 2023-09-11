@@ -1,5 +1,5 @@
 #include <psp2/kernel/processmgr.h>
-#include <psp2/kernel/modulemgr.h> 
+#include <psp2/kernel/modulemgr.h>
 #include <psp2/io/fcntl.h>
 #include <psp2/ctrl.h>
 
@@ -68,6 +68,5 @@ int main(int argc, char *argv[]) {
 				status = mi.module_stop(0,"but not from ModuleMgr");
 		}
 	}
-	sceKernelExitProcess(0);
 	return 0;
 }

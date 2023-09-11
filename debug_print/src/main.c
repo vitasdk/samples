@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 	psvDebugScreenInit();
 
 	printf("Welcome to the psvDebugScreen showcase !\n");
-	
+
 	/* print some bg/fg colors */
 	const char* message = "Let's have some foreground/background colors !\n";
 	int modes[]={3,9,4,10}, c;
@@ -30,6 +30,5 @@ int main(int argc, char *argv[]) {
 	printf("\e[10;20HBye Bye");
 	sceKernelDelayThread(2*1000*1000);
 
-	sceKernelExitProcess(0);
 	return 0;
 }
