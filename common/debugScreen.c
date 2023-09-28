@@ -514,6 +514,9 @@ int psvDebugScreenPuts(const char * _text) {
 		// check if glyph is available in font
 		if ((t > (F)->last) || (t < (F)->first)) {
 			drawDummy = 1;
+			bitmap_offset = 0;
+			font = NULL;
+			mask = 1 << 7;
 		} else {
 			drawDummy = 0;
 			bitmap_offset = (t - (F)->first) * bits_per_glyph;

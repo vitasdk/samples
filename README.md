@@ -31,29 +31,36 @@ make
 
 ## List of samples
 
-* `audio`: Simple audio wave generator.
-* `camera`: Demonstration of camera features.
-* `common`: Common functions for samples.
-* `ctrl`: A minimal controller (button) sample.
-* `debug_print`: A minimal debug print sample.
-* `debugscreen`: Debug text printing sample.
-* `hello_cpp_world`: A minimal hello world sample in C++.
-* `hello_world`: A minimal hello world sample.
-* `ime`: Graphical dialog sample.
-* `microphone`: Demonstration of microphone features.
-* `motion`: Prints accelerometer data.
-* `net_http`: A minimal HTTP download sample.
-* `net_http_bsd`: A minimal HTTP download sample using BSD sockets.
-* `net_libcurl`: A libcurl download sample.
-* `power`: A minimal power sample.
-* `pretty_livearea`: A minimal hello world sample with example livearea styling and features.
-* `prx_loader`: Load/list prx modules.
-* `prx_simple`: Minimal sample prx module.
-* `redrectangle`: Example SDL rendering.
-* `rtc`: A minimal RTC sample.
-* `socket_ping`: ICMP ping using raw sockets.
-* `soloud`: Plays an audio file and Text To Speech.
-* `touch`: A minimal touch sample.
+|name|titleid|description|
+|-----|-----|-----|
+|audio|VSDK00001|Simple audio wave generator.|
+|camera|VSDK00002|Demonstration of camera features.|
+|ctrl|VSDK00003|A minimal controller (button) sample.|
+|debug_print|VSDK00004|A minimal debug print sample.|
+|debugscreen|VSDK00005|Debug text printing sample.|
+|hello_cpp_world|VSDK00006|A minimal hello world sample in C++.|
+|hello_world|VSDK00007|A minimal hello world sample.|
+|ime|VSDK00008|Graphical dialog sample.|
+|microphone|VSDK00009|Demonstration of microphone features.|
+|motion|VSDK00010|Prints accelerometer data.|
+|net_http_bsd|VSDK00011|A minimal HTTP download sample using BSD sockets.|
+|net_http|VSDK00012|A minimal HTTP download sample.|
+|net_libcurl|VSDK00013|A libcurl download sample.|
+|power|VSDK00014|A minimal power sample.|
+|pretty_livearea|VSDK00015|A minimal hello world sample with example livearea styling and features.|
+|rtc|VSDK00016|A minimal RTC sample.|
+|redrectangle|VSDK00017|Example SDL rendering.|
+|socket_ping|VSDK00018|ICMP ping using raw sockets.|
+|touch|VSDK00019|A minimal touch sample.|
+|prx_loader|VSDK00020|Load/list prx modules.|
+|newlib_heapsize_ctrl|VSDK00021|newlib's global heap size control example.|
+|json|VSDK00022|json parsing example.|
+|net_https|VSDK00023|https access example.|
+|soloud|VSDK01337|Plays an audio file and Text To Speech.|
+|common|-|Common functions for samples.|
+|prx_simple|-|Minimal sample prx module.|
+|basic_program|-|Example of a program with possible variables that make part of the process programmable.|
+|kernel_sample|-|kernel module example.|
 
 ## Notes on images
 - Images shall use indexed palettes (PNG-8 128 Dithered).
