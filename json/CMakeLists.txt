@@ -13,7 +13,7 @@ project(json)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "Json Example")
-set(VITA_TITLEID  "VSDK00019")
+set(VITA_TITLEID  "VSDK00022")
 set(VITA_VERSION  "01.00")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
