@@ -42,6 +42,7 @@ typedef struct PsvDebugScreenFont {
 extern "C" {
 #endif
 int psvDebugScreenInit();
+int psvDebugScreenFinish();
 int psvDebugScreenPuts(const char * _text);
 int psvDebugScreenPrintf(const char *format, ...);
 void psvDebugScreenGetColorStateCopy(ColorState *copy);

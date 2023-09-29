@@ -27,6 +27,9 @@ int https_test(void){
 	int res, tpl, conn, req;
 	SceUInt64 length = 0;
 
+	SceUID fd;
+	void *recv_buffer = NULL;
+
 	SceNetInitParam net_init_param;
 	net_init_param.size = 0x800000;
 	net_init_param.flags = 0;
@@ -109,9 +112,6 @@ int https_test(void){
 
 	res = sceHttpGetResponseContentLength(req, &length);
 	sceClibPrintf("sceHttpGetResponseContentLength=0x%X\n", res);
-
-	SceUID fd;
-	void *recv_buffer;
 
 	if(res < 0){
 		recv_buffer = sce_paf_memalign(0x40, 0x40000);
@@ -232,7 +232,5 @@ int main(int argc, char **argp){
 	sceSysmoduleUnloadModuleInternal(SCE_SYSMODULE_INTERNAL_PAF);
 
 	sceKernelDelayThread(40000);
-	sceKernelExitProcess(0);
-
 	return 0;
 }

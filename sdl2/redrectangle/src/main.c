@@ -10,15 +10,15 @@ enum {
 SDL_Window    * gWindow   = NULL;
 SDL_Renderer  * gRenderer = NULL;
 
-SDL_Rect fillRect = { SCREEN_WIDTH  / 4, 
-		      SCREEN_HEIGHT / 4, 
-		      SCREEN_WIDTH  / 2, 
-		      SCREEN_HEIGHT / 2 
+SDL_Rect fillRect = { SCREEN_WIDTH  / 4,
+		      SCREEN_HEIGHT / 4,
+		      SCREEN_WIDTH  / 2,
+		      SCREEN_HEIGHT / 2
 };
 
 
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
       return -1;
@@ -37,8 +37,7 @@ int main(int argc, char *argv[])
   SDL_DestroyWindow( gWindow );
   gWindow = NULL;
   gRenderer = NULL;
-  
+
   SDL_Quit();
-  sceKernelExitProcess(0);
   return 0;
 }

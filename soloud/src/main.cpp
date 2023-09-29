@@ -35,7 +35,5 @@ int main(void) {
 		sceKernelDelayThread(1000 * 1000);
 	}
 
-
-	sceKernelExitProcess(0);
 	return 0;
 }

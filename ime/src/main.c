@@ -112,6 +112,5 @@ int main(int argc, const char *argv[]) {
 		sceDisplayWaitVblankStart();
 	}
 	gxm_term();
-	sceKernelExitProcess(0);
 	return 0;
 }

@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 	printf("press Select+Start+L+R to stop\n");
 	/* to enable analog sampling */
 	sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
-	
+
 	SceCtrlData ctrl;
 	const char* btn_label[]={"SELECT ","","","START ",
 		"UP ","RIGHT ","DOWN ","LEFT ","L ","R ","","",
@@ -26,6 +26,5 @@ int main(int argc, char *argv[]) {
 		}
 		printf("\e[m Stick:[%3i:%3i][%3i:%3i]\r", ctrl.lx,ctrl.ly, ctrl.rx,ctrl.ry);
 	}while(ctrl.buttons != (SCE_CTRL_START | SCE_CTRL_SELECT | SCE_CTRL_LTRIGGER | SCE_CTRL_RTRIGGER) );
-	sceKernelExitProcess(0);
 	return 0;
 }

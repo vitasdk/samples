@@ -75,6 +75,8 @@ int main(int argc, char *argv[]){
 
 	SceCtrlData ctrl, oldCtrl;
 
+	memset(&oldCtrl, 0, sizeof(oldCtrl));
+
 	printf("\e[s");  // save cursor position
 	while (!exit){
 		average = 0;
@@ -145,6 +147,5 @@ int main(int argc, char *argv[]){
 
 	free(audioIn);
 	sceAudioInReleasePort(port);
-	sceKernelExitProcess(0);
 	return 0;
 }

@@ -20,7 +20,7 @@ int powerCallback(int notifyId, int notifyCount, int powerInfo, void *common) {
 
 	SceDateTime time;
 	sceRtcGetCurrentClockLocalTime(&time);
-	printf("%04d/%02d/%02d %02d:%02d:%02d:%05d notifyId %i, notifyCount %i, powerInfo 0x%08X\n", 
+	printf("%04d/%02d/%02d %02d:%02d:%02d:%05d notifyId %i, notifyCount %i, powerInfo 0x%08X\n",
 		sceRtcGetYear(&time), sceRtcGetMonth(&time), sceRtcGetDay(&time),
 		sceRtcGetHour(&time), sceRtcGetMinute(&time), sceRtcGetSecond(&time), sceRtcGetMicrosecond(&time),
 		notifyId, notifyCount, powerInfo);
@@ -59,14 +59,14 @@ int setupCallbacks(void) {
 }
 
 /* main routine */
-int main(int argc, char *argv[]) 
-{	
+int main(int argc, char *argv[])
+{
 	SceCtrlData pad;
 	int i = 0;
 	int batteryLifeTime = 0;
 
 	psvDebugScreenInit();
-	
+
 	printf("PS Vita Power Sample v0.1\n\n");
 	printf("External power: %s\n", scePowerIsPowerOnline()? "yes" : "no ");
 	printf("Low charge: %s\n", scePowerIsLowBattery()? "yes" : "no ");
@@ -85,12 +85,10 @@ int main(int argc, char *argv[])
 	{
 		memset(&pad, 0, sizeof(pad));
 		sceCtrlPeekBufferPositive(0, &pad, 1);
-		
+
 		if (pad.buttons & SCE_CTRL_START)
 			break;
 	}
-
-	sceKernelExitProcess(0);
 
 	return 0;
 }

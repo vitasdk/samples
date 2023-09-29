@@ -116,6 +116,7 @@
 
 #define SAVE_STORAGES 16
 
+static int initialized = 0;
 static int mutex, coordX, coordY;
 static int savedX[SAVE_STORAGES] = { 0 }, savedY[SAVE_STORAGES] = { 0 };
 static ColorState colors = {
@@ -131,6 +132,7 @@ static PsvDebugScreenFont *psvDebugScreenFontCurrent = &psvDebugScreenFont;
 #include <psp2/display.h>
 #include <psp2/kernel/sysmem.h>
 #include <psp2/kernel/threadmgr.h>
+static SceUID displayblock;
 static void* base; // pointer to frame buffer
 #else
 #define NO_psvDebugScreenInit
@@ -404,6 +406,10 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 	return 0;
 }
 
+__attribute__((destructor)) static void psvDebugScreenDestructor() {
+	psvDebugScreenFinish();
+}
+
 /*
 * Initialize debug screen
 */
@@ -415,13 +421,35 @@ int psvDebugScreenInit() {
 
 #ifdef NO_psvDebugScreenInit
 	psvDebugScreenInitReplacement();
+	initialized = 1;
 	return 0; // avoid linking non-initializer (prx) with sceDisplay/sceMemory
 #else
 	mutex = sceKernelCreateMutex("log_mutex", 0, 0, NULL);
-	SceUID displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, (SCREEN_FB_SIZE), NULL);
+	displayblock = sceKernelAllocMemBlock("display", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, (SCREEN_FB_SIZE), NULL);
+	if (displayblock < 0)
+		return displayblock;
 	sceKernelGetMemBlockBase(displayblock, (void**)&base);
 	SceDisplayFrameBuf frame = { sizeof(frame), base, (SCREEN_FB_WIDTH), 0, (SCREEN_WIDTH), (SCREEN_HEIGHT) };
+	initialized = 1;
 	return sceDisplaySetFrameBuf(&frame, SCE_DISPLAY_SETBUF_NEXTFRAME);
+#endif
+}
+
+/*
+* Finalize debug screen
+*/
+int psvDebugScreenFinish() {
+	if (!initialized)
+		return -1;
+
+	initialized = 0;
+
+#ifdef NO_psvDebugScreenInit
+	return 0;
+#else
+	sceKernelDeleteMutex(mutex);
+	sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_IMMEDIATE);
+	return sceKernelFreeMemBlock(displayblock);
 #endif
 }
 
@@ -486,6 +514,9 @@ int psvDebugScreenPuts(const char * _text) {
 		// check if glyph is available in font
 		if ((t > (F)->last) || (t < (F)->first)) {
 			drawDummy = 1;
+			bitmap_offset = 0;
+			font = NULL;
+			mask = 1 << 7;
 		} else {
 			drawDummy = 0;
 			bitmap_offset = (t - (F)->first) * bits_per_glyph;
