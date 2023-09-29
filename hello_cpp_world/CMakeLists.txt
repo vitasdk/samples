@@ -38,6 +38,7 @@ set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
 
 # Add any additional include paths here
 include_directories(
+  ../common # This is for debugScreenPrintf(), you shouldn't need it in your projects
 )
 
 # Add any additional library paths here
@@ -50,12 +51,14 @@ link_directories(
 # Add all the files needed to compile here
 add_executable(${PROJECT_NAME}
   src/main.cpp
+  ../common/debugScreen.c
 )
 
 # Library to link to (drop the -l prefix). This will mostly be stubs.
 target_link_libraries(${PROJECT_NAME}
   SceLibKernel_stub # this line is only for demonstration. It's not needed as
                     # the most common stubs are automatically included.
+  SceDisplay_stub   # This used by debugScreenPrintf()
   stdc++
   pthread
 )
