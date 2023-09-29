@@ -1,5 +1,5 @@
 ## This file is a quick tutorial on writing CMakeLists for targeting the Vita
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
 
 ## This includes the Vita toolchain, must go before project definition
 # It is a convenience so you do not have to type
