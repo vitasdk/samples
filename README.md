@@ -59,6 +59,7 @@ make
 |soloud|VSDK01337|Plays an audio file and Text To Speech.|
 |common|-|Common functions for samples.|
 |prx_simple|-|Minimal sample prx module.|
+|stdio_test|-|The prx format based stdio testing code.|
 |basic_program|-|Example of a program with possible variables that make part of the process programmable.|
 |kernel_sample|-|kernel module example.|
 
