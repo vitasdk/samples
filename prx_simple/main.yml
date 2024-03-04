@@ -1,5 +1,7 @@
 prx_simple:
   attributes: 0
+  process_image: false
+  imagemodule: false
   version:
     major: 1
     minor: 1

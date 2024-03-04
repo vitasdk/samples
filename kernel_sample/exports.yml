@@ -1,7 +1,9 @@
 kernel_sample:
-  attributes: 0x7
+  attributes: 7
+  process_image: false
+  imagemodule: false
   version:
-    major: 0x1
-    minor: 0x0
+    major: 1
+    minor: 1
   main:
     start: module_start

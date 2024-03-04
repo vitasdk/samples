@@ -1,12 +1,13 @@
 basic_program:
   attributes: 0
+  process_image: true
   imagemodule: false
   version:
-    major: 0x1
-    minor: 0x0
+    major: 1
+    minor: 1
   main:
     start: module_start
-  modules:
+  libraries:
     basic_program_library:
       syscall: false
       version: 0x2
