@@ -15,7 +15,7 @@ set(VITA_APP_NAME "Net example")
 set(VITA_TITLEID  "VSDK00012")
 set(VITA_VERSION  "01.00")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wl,-q -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 include_directories(
@@ -30,12 +30,14 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   SceDisplay_stub
   SceSysmodule_stub
+  SceCtrl_stub
   SceNet_stub
   SceNetCtl_stub
   SceHttp_stub
+  SceSsl_stub
 )
 
-vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
+vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME} UNSAFE)
 vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   VERSION ${VITA_VERSION}
   NAME ${VITA_APP_NAME}
