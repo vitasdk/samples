@@ -124,6 +124,7 @@ static ColorState colors = {
 	0, 0, // truecolors
 	0, 0, 0, 0, 0, // ANSI/VTERM/GREYSCALE colors
 	7, 22, 0, 22, 0, // default colors (ANSI/VTERM/GREYSCALE)
+	0, 0 // current colors
 };
 
 static PsvDebugScreenFont *psvDebugScreenFontCurrent = &psvDebugScreenFont;
@@ -406,10 +407,6 @@ static size_t psvDebugScreenEscape(const unsigned char *str) {
 	return 0;
 }
 
-__attribute__((destructor)) static void psvDebugScreenDestructor() {
-	psvDebugScreenFinish();
-}
-
 /*
 * Initialize debug screen
 */
@@ -451,6 +448,10 @@ int psvDebugScreenFinish() {
 	sceDisplaySetFrameBuf(NULL, SCE_DISPLAY_SETBUF_IMMEDIATE);
 	return sceKernelFreeMemBlock(displayblock);
 #endif
+}
+
+__attribute__((destructor)) static void psvDebugScreenDestructor() {
+	psvDebugScreenFinish();
 }
 
 /*
