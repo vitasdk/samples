@@ -30,6 +30,10 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   SDL2::SDL2
+  vitaGL
+  vitashark
+  SceShaccCgExt
+  taihen_stub
 )
 
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
