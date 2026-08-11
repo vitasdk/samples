@@ -56,6 +56,7 @@ make
 |newlib_heapsize_ctrl|VSDK00021|newlib's global heap size control example.|
 |json|VSDK00022|json parsing example.|
 |net_https|VSDK00023|https access example.|
+|message_box|VSDK00024|Example on how to create a spawn a message box.|
 |soloud|VSDK01337|Plays an audio file and Text To Speech.|
 |common|-|Common functions for samples.|
 |prx_simple|-|Minimal sample prx module.|
