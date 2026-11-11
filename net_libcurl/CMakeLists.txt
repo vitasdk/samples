@@ -40,7 +40,7 @@ target_link_libraries(${PROJECT_NAME}
   SceSsl_stub
   ${CURL_LIBRARIES}
   ${OPENSSL_LIBRARIES}
-	pthread
+  pthread
   c
   m
   z
