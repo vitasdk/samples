@@ -40,11 +40,10 @@ target_link_libraries(${PROJECT_NAME}
   SceSsl_stub
   ${CURL_LIBRARIES}
   ${OPENSSL_LIBRARIES}
+  pthread
   c
   m
   z
-
-
 )
 
 vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
